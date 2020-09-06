@@ -3,11 +3,35 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {applyMiddleware, createStore} from "redux";
+import rootReducer from "./store/reducers/rootReducer";
+import thunk from "redux-thunk";
+import {Provider} from "react-redux";
+import {createMuiTheme} from "@material-ui/core";
+import purple from "@material-ui/core/colors/purple";
+import {ThemeProvider} from "@material-ui/styles";
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      // Purple and green play nicely together.
+      main: purple[500],
+    },
+    secondary: {
+      // This is green.A700 as hex.
+      main: '#11cb5f',
+    },
+  },
+});
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
+        <App />
+      </ThemeProvider>
+    </Provider>,
   document.getElementById('root')
 );
 
