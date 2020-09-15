@@ -33,7 +33,8 @@ code {
   grid-template-areas:
           "image image image image"
           "version version environment environment"
-          "extensions extensions extensions extensions";
+          "extensions extensions extensions extensions"
+          "ports ports ports ports";
   padding: 10px;
   border-radius: 10px;
 }
@@ -49,5 +50,31 @@ code {
 }
 
 .extension{
+  padding: 10px;
+}
+
+.ports{
+  display: grid;
+  grid-area: ports;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  grid-template-areas:
+          "port-switch port-outward port-outward . .";
+  grid-auto-rows: minmax(60px, auto);
+  padding: 10px;
+}
+
+.ports-checked{
+  display: grid;
+  grid-area: ports;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  grid-template-areas:
+          "port-switch port-outward port-outward port-inward port-inward";
+  grid-auto-rows: minmax(60px, auto);
+  padding: 10px;
+}
+
+.port-item{
   padding: 10px;
 }

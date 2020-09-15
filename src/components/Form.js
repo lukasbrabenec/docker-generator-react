@@ -9,7 +9,7 @@ import {
   updateImageVersion,
   changeEnvironments,
   generate,
-  removeImageVersion
+  removeImageVersion, changePorts
 } from "../store/actions/generateActions";
 import Button from "@material-ui/core/Button";
 
@@ -40,6 +40,7 @@ class Form extends Component {
               removeImageVersion={this.props.removeImageVersion}
               changeExtensions={this.props.changeExtensions}
               changeEnvironments={this.props.changeEnvironments}
+              changePorts={this.props.changePorts}
             />
             <Button type="submit">Generate</Button>
           </form>
@@ -63,6 +64,7 @@ const mapDispatchToProps = (dispatch) => {
     removeImageVersion: (imageVersionId) => dispatch(removeImageVersion(imageVersionId)),
     changeExtensions: (imageVersionId, extensions) => dispatch(changeExtensions(imageVersionId, extensions)),
     changeEnvironments: (imageVersionId, environments) => dispatch(changeEnvironments(imageVersionId, environments)),
+    changePorts: (imageVersionId, ports) => dispatch(changePorts(imageVersionId, ports)),
     generate: () => dispatch(generate())
   }
 }

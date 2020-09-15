@@ -1,10 +1,12 @@
 import React from "react";
+import { debounce } from "lodash";
 import ExtensionsDropdown from "./ExtensionsDropdown";
 import Environments from "./Environments";
 import ImageSwitch from "./ImageSwitch";
 import ImageVersionSelect from "./ImageVersionSelect";
 import Paper from "@material-ui/core/Paper";
 import Fade from "@material-ui/core/Fade";
+import Ports from "./Ports";
 
 class ImageWrapper extends React.Component {
   constructor(props) {
@@ -18,6 +20,7 @@ class ImageWrapper extends React.Component {
     this.handleVersionChange = this.handleVersionChange.bind(this);
     this.handleExtensionChange = this.handleExtensionChange.bind(this);
     this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
+    this.handlePortChange = debounce(this.handlePortChange.bind(this), 500);
   }
 
   handleImageChange() {
@@ -56,6 +59,10 @@ class ImageWrapper extends React.Component {
     this.props.changeEnvironments(this.state.selectedVersion.id, environments);
   }
 
+  handlePortChange(ports) {
+    this.props.changePorts(this.state.selectedVersion.id, ports);
+  }
+
   render() {
     const {imageVersions} = this.props.image;
     const {imageChecked, selectedVersion} = this.state;
@@ -83,7 +90,7 @@ class ImageWrapper extends React.Component {
             }
           </div>
         </Fade>
-        <Fade in={!!(selectedVersion && selectedVersion.extensions.length)} exit={false} unmountOnExit={true}>
+        <Fade in={!!(selectedVersion && selectedVersion.extensions && selectedVersion.extensions.length)} exit={false} unmountOnExit={true}>
           {selectedVersion && selectedVersion.extensions.length ? (
             <div className="extensions">
               <Paper variant="outlined" className="extension" style={{gridArea: "extension-system"}}>
@@ -102,6 +109,15 @@ class ImageWrapper extends React.Component {
               </Paper>
             </div>
           ) : <div className="extensions"> </div>}
+        </Fade>
+        <Fade in={!!(selectedVersion && selectedVersion.ports && selectedVersion.ports.length)} exit={false} unmountOnExit={true}>
+          <div style={{gridArea: "ports"}}>
+          {selectedVersion && selectedVersion.ports && selectedVersion.ports.length ? (
+              <Paper variant="outlined">
+                <Ports ports={selectedVersion.ports} handlePortChange={this.handlePortChange} />
+              </Paper>
+          ) : null}
+          </div>
         </Fade>
       </Paper>
     )

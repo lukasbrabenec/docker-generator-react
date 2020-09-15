@@ -47,6 +47,17 @@ const generateReducer = (state = initState, action) => {
         ]
       }
     }
+    case 'CHANGE_PORTS': {
+      const currentImageVersion = state.imageVersions.find(imageVersion => imageVersion.imageVersionId === action.imageVersionId);
+      const otherImageVersions = state.imageVersions.filter(imageVersion => imageVersion.imageVersionId !== action.imageVersionId);
+      return {
+        ...state,
+        imageVersions: [
+          ...otherImageVersions,
+          { ...currentImageVersion, ports: action.ports }
+        ]
+      }
+    }
     default:
       return state;
   }

@@ -13,6 +13,7 @@ class ImageList extends Component {
             removeImageVersion={this.props.removeImageVersion}
             changeExtensions={this.props.changeExtensions}
             changeEnvironments={this.props.changeEnvironments}
+            changePorts={this.props.changePorts}
           />
         );
       })

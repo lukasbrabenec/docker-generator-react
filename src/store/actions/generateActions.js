@@ -14,13 +14,19 @@ export const removeImageVersion = imageVersionId => {
 
 export const changeExtensions = (imageVersionId, extensions) => {
   return (dispatch) => {
-    dispatch({type: 'CHANGE_EXTENSIONS', imageVersionId, extensions})
+    dispatch({type: 'CHANGE_EXTENSIONS', imageVersionId, extensions});
   }
 }
 
 export const changeEnvironments = (imageVersionId, environments) => {
   return (dispatch) => {
-    dispatch({type: 'CHANGE_ENVIRONMENTS', imageVersionId, environments})
+    dispatch({type: 'CHANGE_ENVIRONMENTS', imageVersionId, environments});
+  }
+}
+
+export const changePorts = (imageVersionId, ports) => {
+  return (dispatch) => {
+    dispatch({type: 'CHANGE_PORTS', imageVersionId, ports});
   }
 }
 
