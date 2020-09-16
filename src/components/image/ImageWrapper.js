@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useState} from "react";
 import { debounce } from "lodash";
 import ExtensionsDropdown from "./ExtensionsDropdown";
 import Environments from "./Environments";
@@ -8,120 +8,100 @@ import Paper from "@material-ui/core/Paper";
 import Fade from "@material-ui/core/Fade";
 import Ports from "./Ports";
 
-class ImageWrapper extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      imageChecked: false,
-      selectedVersion: '',
-      environments: []
+const ImageWrapper = ({image, updateImageVersionInRequest, removeImageVersionInRequest, changeExtensionsInRequest, changeEnvironmentsInRequest, changePortsInRequest}) => {
+  const [imageChecked, setImageChecked] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState('');
+  const [environments, setEnvironments] = useState([]);
+
+  const delayedChangePorts = useCallback(debounce((selectedVersionId, ports) => changePortsInRequest(selectedVersionId, ports), 500), []);
+
+
+  const {imageVersions} = image;
+  const imageClass = imageChecked ? "image-checked" : "image";
+
+  const handleImageChange = () => {
+    setImageChecked(!imageChecked);
+    if (imageChecked && selectedVersion) {
+      removeImageVersionInRequest(selectedVersion.id);
     }
-    this.handleImageChange = this.handleImageChange.bind(this);
-    this.handleVersionChange = this.handleVersionChange.bind(this);
-    this.handleExtensionChange = this.handleExtensionChange.bind(this);
-    this.handleEnvironmentChange = this.handleEnvironmentChange.bind(this);
-    this.handlePortChange = debounce(this.handlePortChange.bind(this), 500);
   }
 
-  handleImageChange() {
-    if (this.state.imageChecked && this.state.selectedVersion) {
-      this.props.removeImageVersion(this.state.selectedVersion.id);
-    }
-    this.setState({
-      ...this.state,
-      imageChecked: !this.state.imageChecked,
-      selectedVersion: this.state.imageChecked ? '' : this.state.imageChecked
-    });
+  const handleVersionChange = (e) => {
+    const selectedVersionId = e.target.value;
+    setSelectedVersion(image.imageVersions.find(imageVersion => imageVersion.id === selectedVersionId));
+    updateImageVersionInRequest(selectedVersionId, selectedVersion ? selectedVersion.id : null);
   }
 
-  handleVersionChange(event) {
-    this.setState({
-      ...this.state,
-      selectedVersion: this.props.image.imageVersions.find(imageVersion => imageVersion.id === event.target.value)
-    });
-    this.props.updateImageVersion(event.target.value, this.state.selectedVersion ? this.state.selectedVersion.id : null);
+  const handleExtensionChange = (e, extensions) => {
+    changeExtensionsInRequest(selectedVersion.id, extensions);
   }
 
-  handleExtensionChange(event, extensions) {
-    this.props.changeExtensions(this.state.selectedVersion.id, extensions);
-  }
-
-  handleEnvironmentChange(event) {
-    const otherEnvironments = this.state.environments.filter((environment) => environment.id !== event.target.id);
-    const environments = [
+  const handleEnvironmentChange = (e) => {
+    const otherEnvironments = environments.filter(environment => environment.id !== e.target.id);
+    const newEnvironments = [
       ...otherEnvironments,
-      {id: event.target.id, value: event.target.value}
+      { id: e.target.id, value: e.target.value }
     ];
-    this.setState({
-      ...this.state,
-      environments
-    });
-    this.props.changeEnvironments(this.state.selectedVersion.id, environments);
+    setEnvironments(newEnvironments);
+    changeEnvironmentsInRequest(selectedVersion.id, newEnvironments);
   }
 
-  handlePortChange(ports) {
-    this.props.changePorts(this.state.selectedVersion.id, ports);
+  const handlePortChange = (ports) => {
+    delayedChangePorts(selectedVersion.id, ports);
   }
 
-  render() {
-    const {imageVersions} = this.props.image;
-    const {imageChecked, selectedVersion} = this.state;
-    const imageClass = imageChecked ? "image-checked" : "image";
-
-    return (
-      <Paper variant="outlined" className={imageClass}>
-        <div style={{gridArea: "image"}}>
-          <ImageSwitch image={this.props.image} handleCheckImage={this.handleImageChange}/>
+  return (
+    <Paper variant="outlined" className={imageClass}>
+      <div style={{gridArea: "image"}}>
+        <ImageSwitch image={image} handleCheckImage={handleImageChange}/>
+      </div>
+      <Fade in={imageChecked} exit={false} unmountOnExit={true}>
+        <div style={{gridArea: "version"}}>
+          <ImageVersionSelect imageVersions={imageVersions} selectedVersion={selectedVersion}
+                              handleVersionChange={handleVersionChange}/>
         </div>
-        <Fade in={imageChecked} exit={false} unmountOnExit={true}>
-          <div style={{gridArea: "version"}}>
-            <ImageVersionSelect imageVersions={imageVersions} selectedVersion={selectedVersion}
-                                handleVersionChange={this.handleVersionChange}/>
+      </Fade>
+      <Fade in={!!(imageChecked && selectedVersion && selectedVersion.environments && selectedVersion.environments.length)} exit={false} unmountOnExit={true}>
+        <div style={{gridArea: "environment"}}>
+          {imageChecked && selectedVersion && selectedVersion.environments.length
+            ? <Environments
+              environments={selectedVersion.environments}
+              handleEnvironmentChange={handleEnvironmentChange}/>
+            : null
+          }
+        </div>
+      </Fade>
+      <Fade in={!!(imageChecked && selectedVersion && selectedVersion.extensions && selectedVersion.extensions.length)} exit={false} unmountOnExit={true}>
+        {imageChecked && selectedVersion && selectedVersion.extensions.length ? (
+          <div className="extensions">
+            <Paper variant="outlined" className="extension" style={{gridArea: "extension-system"}}>
+              <ExtensionsDropdown
+                id="extension-system"
+                name="System Extensions"
+                extensions={selectedVersion.extensions.filter(extension => extension.extension.special !== true)}
+                handleExtensionChange={handleExtensionChange}/>
+            </Paper>
+            <Paper variant="outlined" className="extension" style={{gridArea: "extension-special"}}>
+              <ExtensionsDropdown
+                id="extension-special"
+                name={`${image.name.charAt(0).toUpperCase() + image.name.slice(1)} Extensions`}
+                extensions={selectedVersion.extensions.filter(extension => extension.extension.special !== false)}
+                handleExtensionChange={handleExtensionChange}/>
+            </Paper>
           </div>
-        </Fade>
-        <Fade in={!!(selectedVersion && selectedVersion.environments && selectedVersion.environments.length)} exit={false}
-              unmountOnExit={true}>
-          <div style={{gridArea: "environment"}}>
-            {selectedVersion && selectedVersion.environments.length
-              ? <Environments
-                environments={selectedVersion.environments}
-                handleEnvironmentChange={this.handleEnvironmentChange}/>
-              : null
-            }
-          </div>
-        </Fade>
-        <Fade in={!!(selectedVersion && selectedVersion.extensions && selectedVersion.extensions.length)} exit={false} unmountOnExit={true}>
-          {selectedVersion && selectedVersion.extensions.length ? (
-            <div className="extensions">
-              <Paper variant="outlined" className="extension" style={{gridArea: "extension-system"}}>
-                <ExtensionsDropdown
-                  id="extension-system"
-                  name="System Extensions"
-                  extensions={this.state.selectedVersion.extensions.filter(extension => extension.extension.special !== true)}
-                  handleExtensionChange={this.handleExtensionChange}/>
-              </Paper>
-              <Paper variant="outlined" className="extension" style={{gridArea: "extension-special"}}>
-                <ExtensionsDropdown
-                  id="extension-special"
-                  name={`${this.props.image.name.charAt(0).toUpperCase() + this.props.image.name.slice(1)} Extensions`}
-                  extensions={this.state.selectedVersion.extensions.filter(extension => extension.extension.special !== false)}
-                  handleExtensionChange={this.handleExtensionChange}/>
-              </Paper>
-            </div>
-          ) : <div className="extensions"> </div>}
-        </Fade>
-        <Fade in={!!(selectedVersion && selectedVersion.ports && selectedVersion.ports.length)} exit={false} unmountOnExit={true}>
-          <div style={{gridArea: "ports"}}>
-          {selectedVersion && selectedVersion.ports && selectedVersion.ports.length ? (
-              <Paper variant="outlined">
-                <Ports ports={selectedVersion.ports} handlePortChange={this.handlePortChange} />
-              </Paper>
+        ) : <div className="extensions"> </div>}
+      </Fade>
+      <Fade in={!!(imageChecked && selectedVersion && selectedVersion.ports && selectedVersion.ports.length)} exit={false} unmountOnExit={true}>
+        <div style={{gridArea: "ports"}}>
+          {imageChecked && selectedVersion && selectedVersion.ports && selectedVersion.ports.length ? (
+            <Paper variant="outlined">
+              <Ports ports={selectedVersion.ports} handlePortChange={handlePortChange} />
+            </Paper>
           ) : null}
-          </div>
-        </Fade>
-      </Paper>
-    )
-  }
+        </div>
+      </Fade>
+    </Paper>
+  )
 }
 
 export default ImageWrapper;

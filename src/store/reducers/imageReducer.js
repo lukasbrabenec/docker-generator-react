@@ -1,4 +1,5 @@
 const initState = {
+  isLoaded: false,
   images: null,
   imagesErr: null
 }
@@ -7,7 +8,7 @@ const imageReducer = (state = initState, action) => {
   switch (action.type) {
     case 'INIT_IMAGES_SUCCESS':
       return {
-        ...state,
+        isLoaded: true,
         imagesError: null,
         images: action.images
       }

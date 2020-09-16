@@ -1,31 +1,51 @@
-import React, {Component} from "react";
+import React, {useCallback} from "react";
 import ImageWrapper from "./ImageWrapper";
+import {useDispatch} from "react-redux";
+import {
+  changeEnvironmentsInRequest,
+  changeExtensionsInRequest, changePortsInRequest,
+  removeImageVersionInRequest,
+  updateImageVersionInRequest
+} from "../../store/actions/generateActions";
 
-class ImageList extends Component {
-  render() {
-    const imageList = this.props.images.length ? (
-      this.props.images.map(image => {
-        return (
-          <ImageWrapper
-            image={image}
-            key={image.id}
-            updateImageVersion={this.props.updateImageVersion}
-            removeImageVersion={this.props.removeImageVersion}
-            changeExtensions={this.props.changeExtensions}
-            changeEnvironments={this.props.changeEnvironments}
-            changePorts={this.props.changePorts}
-          />
-        );
-      })
-    ) : (
-      <div>No images</div>
-    );
-    return (
-      <div style={{display: "grid", gridTemplateColumns: "1fr", gap: "10px"}}>
-        {imageList}
-      </div>
-    )
-  }
+const ImageList = ({ images }) => {
+  const dispatch = useDispatch();
+  const handleUpdateImageVersionInRequest = useCallback(
+    (newImageVersionId, previousImageVersionId) => dispatch(updateImageVersionInRequest(newImageVersionId, previousImageVersionId)),
+    [dispatch]
+  );
+  const handleRemoveImageVersionInRequest = useCallback(
+    (imageVersionId) => dispatch(removeImageVersionInRequest(imageVersionId)),
+    [dispatch]
+  );
+  const handleChangeExtensionsInRequest = useCallback(
+    (imageVersionId, extensions) => dispatch(changeExtensionsInRequest(imageVersionId, extensions)),
+    [dispatch]
+  );
+  const handleChangeEnvironmentsInRequest = useCallback(
+    (imageVersionId, environments) => dispatch(changeEnvironmentsInRequest(imageVersionId, environments)),
+    [dispatch]
+  );
+  const handleChangePortsInRequest = useCallback(
+    (imageVersionId, ports) => dispatch(changePortsInRequest(imageVersionId, ports)),
+    [dispatch]
+  );
+
+  return (
+    images.map(image => {
+      return (
+        <ImageWrapper
+          image={image}
+          key={image.id}
+          updateImageVersionInRequest={handleUpdateImageVersionInRequest}
+          removeImageVersionInRequest={handleRemoveImageVersionInRequest}
+          changeExtensionsInRequest={handleChangeExtensionsInRequest}
+          changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
+          changePortsInRequest={handleChangePortsInRequest}
+        />
+      )
+    })
+  )
 }
 
 export default ImageList;

@@ -1,30 +1,30 @@
 import axios from "axios";
 
-export const updateImageVersion = (newImageVersionId, previousImageVersionId) => {
+export const updateImageVersionInRequest = (newImageVersionId, previousImageVersionId) => {
   return (dispatch) => {
     dispatch({type: 'UPDATE_IMAGE_VERSION', newImageVersionId, previousImageVersionId});
   }
 }
 
-export const removeImageVersion = imageVersionId => {
+export const removeImageVersionInRequest = imageVersionId => {
   return (dispatch) => {
     dispatch({type: 'REMOVE_IMAGE_VERSION', imageVersionId});
   }
 }
 
-export const changeExtensions = (imageVersionId, extensions) => {
+export const changeExtensionsInRequest = (imageVersionId, extensions) => {
   return (dispatch) => {
     dispatch({type: 'CHANGE_EXTENSIONS', imageVersionId, extensions});
   }
 }
 
-export const changeEnvironments = (imageVersionId, environments) => {
+export const changeEnvironmentsInRequest = (imageVersionId, environments) => {
   return (dispatch) => {
     dispatch({type: 'CHANGE_ENVIRONMENTS', imageVersionId, environments});
   }
 }
 
-export const changePorts = (imageVersionId, ports) => {
+export const changePortsInRequest = (imageVersionId, ports) => {
   return (dispatch) => {
     dispatch({type: 'CHANGE_PORTS', imageVersionId, ports});
   }
