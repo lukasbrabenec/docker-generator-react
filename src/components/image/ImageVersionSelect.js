@@ -12,7 +12,7 @@ const ImageVersionSelect = ({imageVersions, selectedVersion, handleVersionChange
   }) : null;
 
   return versionItems ? (
-    <FormControl style={{minWidth: "500px"}} size="small">
+    <FormControl style={{minWidth: "80%"}} size="small">
       <InputLabel htmlFor="versions">Version</InputLabel>
       <Select labelId="versions" id="versions" value={selectedVersion ? selectedVersion.id : ''}
               onChange={handleVersionChange}>

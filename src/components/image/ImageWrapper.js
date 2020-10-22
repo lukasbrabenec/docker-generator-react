@@ -56,10 +56,11 @@ const ImageWrapper = ({image, updateImageVersionInRequest, removeImageVersionInR
         <ImageSwitch image={image} handleCheckImage={handleImageChange}/>
       </div>
       <Fade in={imageChecked} exit={false} unmountOnExit={true}>
-        <div style={{gridArea: "version"}}>
+        <Paper style={{gridArea: "version", padding: "10px"}}>
+          <p>Version</p>
           <ImageVersionSelect imageVersions={imageVersions} selectedVersion={selectedVersion}
                               handleVersionChange={handleVersionChange}/>
-        </div>
+        </Paper>
       </Fade>
       <Fade in={!!(imageChecked && selectedVersion && selectedVersion.environments && selectedVersion.environments.length)} exit={false} unmountOnExit={true}>
         <div style={{gridArea: "environment"}}>

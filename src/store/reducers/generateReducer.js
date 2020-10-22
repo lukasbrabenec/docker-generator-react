@@ -1,5 +1,5 @@
 const initState = {
-  dockerVersion: 3.8,
+  dockerVersionId: null,
   imageVersions: [],
 }
 
@@ -56,6 +56,12 @@ const generateReducer = (state = initState, action) => {
           ...otherImageVersions,
           { ...currentImageVersion, ports: action.ports }
         ]
+      }
+    }
+    case 'CHANGE_DOCKER_VERSION': {
+      return {
+        ...state,
+        dockerVersionId: action.versionId
       }
     }
     default:

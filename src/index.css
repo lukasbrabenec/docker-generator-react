@@ -13,15 +13,30 @@ code {
     monospace;
 }
 
+.form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+          ". docker-engine-version docker-compose-version ."
+          "images images images images"
+          ". button button .";
+  grid-gap: 10px;
+}
+
+.images {
+  grid-area: images;
+}
+
 .image{
   background: lightgrey;
   border: 1px solid;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
+  grid-gap: 10px;
   grid-template-areas:
           "image image image image";
   padding: 10px;
+  margin: 10px;
 }
 
 .image-checked {
@@ -29,11 +44,12 @@ code {
   border: 1px solid;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
+  grid-gap: 10px;
   grid-template-areas:
           "image image image image"
-          "version version environment environment"
+          ". version version ."
           "extensions extensions extensions extensions"
+          "environment environment environment environment"
           "ports ports ports ports";
   padding: 10px;
   border-radius: 10px;

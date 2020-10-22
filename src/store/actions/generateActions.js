@@ -1,5 +1,11 @@
 import axios from "axios";
 
+export const changeDockerVersion = (versionId) => {
+  return (dispatch) => {
+    dispatch({ type: 'CHANGE_DOCKER_VERSION', versionId });
+  }
+};
+
 export const updateImageVersionInRequest = (newImageVersionId, previousImageVersionId) => {
   return (dispatch) => {
     dispatch({type: 'UPDATE_IMAGE_VERSION', newImageVersionId, previousImageVersionId});

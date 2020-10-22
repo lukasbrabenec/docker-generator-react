@@ -1,12 +1,12 @@
 import React, {useCallback} from "react";
-import ImageWrapper from "./ImageWrapper";
+import ImageWrapper from "./image/ImageWrapper";
 import {useDispatch} from "react-redux";
 import {
   changeEnvironmentsInRequest,
   changeExtensionsInRequest, changePortsInRequest,
   removeImageVersionInRequest,
   updateImageVersionInRequest
-} from "../../store/actions/generateActions";
+} from "../store/actions/generateActions";
 
 const ImageList = ({ images }) => {
   const dispatch = useDispatch();
@@ -32,19 +32,21 @@ const ImageList = ({ images }) => {
   );
 
   return (
-    images.map(image => {
-      return (
-        <ImageWrapper
-          image={image}
-          key={image.id}
-          updateImageVersionInRequest={handleUpdateImageVersionInRequest}
-          removeImageVersionInRequest={handleRemoveImageVersionInRequest}
-          changeExtensionsInRequest={handleChangeExtensionsInRequest}
-          changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
-          changePortsInRequest={handleChangePortsInRequest}
-        />
-      )
-    })
+    <div className="images">
+      {images.map(image => {
+        return (
+          <ImageWrapper
+            image={image}
+            key={image.id}
+            updateImageVersionInRequest={handleUpdateImageVersionInRequest}
+            removeImageVersionInRequest={handleRemoveImageVersionInRequest}
+            changeExtensionsInRequest={handleChangeExtensionsInRequest}
+            changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
+            changePortsInRequest={handleChangePortsInRequest}
+          />
+        )
+      })}
+    </div>
   )
 }
 

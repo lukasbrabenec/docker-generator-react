@@ -11,7 +11,7 @@ const Environments = ({environments, handleEnvironmentChange}) => {
         key={environment.id}
         onChange={handleEnvironmentChange}
         id={environment.id + ''}
-        style={{minWidth: "100%"}}
+        style={{minWidth: "80%"}}
       />
     )
   });
