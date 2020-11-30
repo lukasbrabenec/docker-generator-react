@@ -1,11 +1,12 @@
-body {
+#root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  display: grid;
+  display: flex;
+  flex-direction: column;
 }
 
 code {
@@ -14,83 +15,40 @@ code {
 }
 
 .form {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-areas:
-          ". docker-engine-version docker-compose-version ."
-          "images images images images"
-          ". button button .";
-  grid-gap: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.images {
-  grid-area: images;
+.general-option {
+  width: 50%;
+  align-self: center;
 }
 
-.image{
+.image {
   background: lightgrey;
   border: 1px solid;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 10px;
-  grid-template-areas:
-          "image image image image";
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
   padding: 10px;
   margin: 10px;
-}
-
-.image-checked {
-  background: lightgrey;
-  border: 1px solid;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 10px;
-  grid-template-areas:
-          "image image image image"
-          ". version version ."
-          "extensions extensions extensions extensions"
-          "environment environment environment environment"
-          "ports ports ports ports";
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.extensions{
-  display: grid;
-  grid-area: extensions;
-  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  grid-template-areas:
-          "extension-system extension-system extension-special extension-special";
-  grid-auto-rows: minmax(75px, auto);
 }
 
-.extension{
+.image-item-group-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
   padding: 10px;
-}
-
-.ports{
-  display: grid;
-  grid-area: ports;
-  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
-  grid-template-areas:
-          "port-switch port-outward port-outward . .";
-  grid-auto-rows: minmax(60px, auto);
-  padding: 10px;
 }
 
-.ports-checked{
-  display: grid;
-  grid-area: ports;
-  grid-template-columns: repeat(5, 1fr);
+.image-item-group-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px;
   gap: 10px;
-  grid-template-areas:
-          "port-switch port-outward port-outward port-inward port-inward";
-  grid-auto-rows: minmax(60px, auto);
-  padding: 10px;
-}
-
-.port-item{
-  padding: 10px;
 }
