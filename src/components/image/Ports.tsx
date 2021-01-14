@@ -45,11 +45,15 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
       {portsState && portsState.length
         ? portsState.map((port: GeneratePort) => {
             return (
-              <div className="image-item-group-row">
-                <FormControl style={{ flexDirection: 'row', gap: 10 }}>
+              <div className="image-item-group-row" key={port.id}>
+                <FormControl
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    width: '100%',
+                  }}
+                >
                   <FormControlLabel
-                    key={port.id}
-                    className="port-item"
                     control={
                       <Checkbox
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -58,30 +62,25 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
                       />
                     }
                     label="Publish port to host"
-                    style={{ gridArea: 'port-switch' }}
+                    style={{ justifySelf: 'flex-start' }}
                   />
                   <TextField
-                    className="port-item"
                     label="Port exposed to other containers"
                     value={port.outward}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handlePortsStateChange(e, port.id, 'outward')
                     }
                     id={`${port.id}`}
-                    style={{ gridArea: 'port-outward' }}
                   />
-                  {port.exposeToHost ? (
-                    <TextField
-                      className="port-item"
-                      label="Port exposed to host"
-                      value={port.inward}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handlePortsStateChange(e, port.id, 'inward')
-                      }
-                      id={`${port.id}`}
-                      style={{ gridArea: 'port-inward' }}
-                    />
-                  ) : null}
+                  <TextField
+                    label="Port exposed to host"
+                    value={port.exposeToHost ? port.inward : 'Disabled'}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handlePortsStateChange(e, port.id, 'inward')
+                    }
+                    id={`${port.id}`}
+                    disabled={!port.exposeToHost}
+                  />
                 </FormControl>
               </div>
             );

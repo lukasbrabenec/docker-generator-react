@@ -4,6 +4,7 @@ import { CircularProgress } from '@material-ui/core';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import { GetApp } from '@material-ui/icons';
 import ImageList from './ImageList';
 import {
   changeDockerVersion,
@@ -75,7 +76,13 @@ const Form = () => {
             handleVersionChange={handleVersionChange}
           />
           <ImageList images={images} />
-          <Button type="submit" style={{ gridArea: 'button' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="default"
+            startIcon={<GetApp />}
+            style={{ alignSelf: 'center' }}
+          >
             Generate
           </Button>
         </form>

@@ -2,9 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { debounce } from 'lodash';
 import Paper from '@material-ui/core/Paper';
 import Fade from '@material-ui/core/Fade';
+import { IconButton, Tooltip, Typography } from '@material-ui/core';
+import { Delete } from '@material-ui/icons';
 import ExtensionsDropdown from './ExtensionsDropdown';
 import Environments from './Environments';
-import ImageSwitch from './ImageSwitch';
 import ImageVersionSelect from './ImageVersionSelect';
 import Ports from './Ports';
 import {
@@ -22,7 +23,10 @@ interface IImageWrapperProps {
     newImageVersionId: number,
     previousImageVersionId: number | undefined,
   ) => void;
-  removeImageVersionInRequest: (imageVersionId: number) => void;
+  handleRemoveImage: (
+    image: Image,
+    imageVersion: ImageVersion | undefined,
+  ) => void;
   changeExtensionsInRequest: (
     imageVersionId: number,
     extensions: Extension[],
@@ -37,12 +41,11 @@ interface IImageWrapperProps {
 const ImageWrapper = ({
   image,
   updateImageVersionInRequest,
-  removeImageVersionInRequest,
+  handleRemoveImage,
   changeExtensionsInRequest,
   changeEnvironmentsInRequest,
   changePortsInRequest,
 }: IImageWrapperProps) => {
-  const [imageChecked, setImageChecked] = useState<boolean>(false);
   const [selectedVersion, setSelectedVersion] = useState<ImageVersion>();
   const [environments, setEnvironments] = useState<Environment[]>([]);
 
@@ -57,13 +60,6 @@ const ImageWrapper = ({
   );
 
   const { imageVersions } = image;
-
-  const handleImageChange = () => {
-    setImageChecked(!imageChecked);
-    if (imageChecked && typeof selectedVersion === 'object') {
-      removeImageVersionInRequest(selectedVersion.id);
-    }
-  };
 
   const handleVersionChange = (e: React.ChangeEvent<{}>) => {
     const selectedVersionId = parseInt(
@@ -112,34 +108,44 @@ const ImageWrapper = ({
   };
 
   return (
-    <Paper variant="outlined" className="image">
-      <div>
-        <ImageSwitch image={image} handleCheckImage={handleImageChange} />
-      </div>
-      <Fade in={imageChecked} exit={false} unmountOnExit>
-        <Paper variant="outlined" className="image-item-group-row">
-          <ImageVersionSelect
-            imageVersions={imageVersions}
-            selectedVersion={selectedVersion}
-            handleVersionChange={handleVersionChange}
-          />
-        </Paper>
-      </Fade>
+    <Paper
+      variant="outlined"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        borderColor: 'rgba(0, 0, 0, 0.25)',
+        padding: '10px',
+      }}
+    >
+      <Tooltip title="Remove image">
+        <IconButton
+          style={{
+            position: 'absolute',
+            alignSelf: 'flex-end',
+          }}
+          type="button"
+          onClick={() => handleRemoveImage(image, selectedVersion)}
+        >
+          <Delete />
+        </IconButton>
+      </Tooltip>
+      <Typography variant="h4" component="h2">
+        {`${image.name} image`}
+      </Typography>
+      <Paper variant="outlined" className="image-item-group-row">
+        <ImageVersionSelect
+          imageVersions={imageVersions}
+          selectedVersion={selectedVersion}
+          handleVersionChange={handleVersionChange}
+        />
+      </Paper>
       <Fade
-        in={
-          !!(
-            imageChecked &&
-            typeof selectedVersion === 'object' &&
-            selectedVersion.environments &&
-            selectedVersion.environments.length
-          )
-        }
+        in={!!selectedVersion?.environments?.length}
         exit={false}
         unmountOnExit
       >
-        <Paper variant="outlined">
-          {imageChecked &&
-          typeof selectedVersion === 'object' &&
+        <Paper variant="outlined" className="image-item-group-column">
+          {typeof selectedVersion === 'object' &&
           selectedVersion.environments.length ? (
             <>
               <p>Environments</p>
@@ -152,21 +158,13 @@ const ImageWrapper = ({
         </Paper>
       </Fade>
       <Fade
-        in={
-          !!(
-            imageChecked &&
-            typeof selectedVersion === 'object' &&
-            selectedVersion.extensions &&
-            selectedVersion.extensions.length
-          )
-        }
+        in={!!selectedVersion?.extensions?.length}
         exit={false}
         unmountOnExit
       >
-        {imageChecked &&
-        typeof selectedVersion === 'object' &&
+        {typeof selectedVersion === 'object' &&
         selectedVersion.extensions.length ? (
-          <Paper variant="outlined">
+          <Paper variant="outlined" className="image-item-group-column">
             <p>Extensions</p>
             <div className="image-item-group-row">
               <ExtensionsDropdown
@@ -193,23 +191,9 @@ const ImageWrapper = ({
           <></>
         )}
       </Fade>
-      <Fade
-        in={
-          !!(
-            imageChecked &&
-            typeof selectedVersion === 'object' &&
-            selectedVersion.ports &&
-            selectedVersion.ports.length
-          )
-        }
-        exit={false}
-        unmountOnExit
-      >
-        <Paper variant="outlined">
-          {imageChecked &&
-          typeof selectedVersion === 'object' &&
-          selectedVersion.ports &&
-          selectedVersion.ports.length ? (
+      <Fade in={!!selectedVersion?.ports?.length} exit={false} unmountOnExit>
+        <Paper variant="outlined" className="image-item-group-column">
+          {selectedVersion?.ports?.length ? (
             <>
               <p>Ports</p>
               <Ports
