@@ -1,11 +1,13 @@
-body {
+#root {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
 }
 
 code {
@@ -13,68 +15,39 @@ code {
     monospace;
 }
 
-.image{
-  background: lightgrey;
-  border: 1px solid;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
-  grid-template-areas:
-          "image image image image";
-  padding: 10px;
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.image-checked {
-  background: lightgrey;
-  border: 1px solid;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 50px;
-  grid-template-areas:
-          "image image image image"
-          "version version environment environment"
-          "extensions extensions extensions extensions"
-          "ports ports ports ports";
-  padding: 10px;
-  border-radius: 10px;
+.general-option {
+  width: 50%;
+  align-self: center;
 }
 
-.extensions{
-  display: grid;
-  grid-area: extensions;
-  grid-template-columns: repeat(4, 1fr);
+.images {
+  display:flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 20px;
+}
+
+
+.image-item-group-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 10px;
+  margin: 10px;
   gap: 10px;
-  grid-template-areas:
-          "extension-system extension-system extension-special extension-special";
-  grid-auto-rows: minmax(75px, auto);
 }
 
-.extension{
+.image-item-group-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 10px;
-}
-
-.ports{
-  display: grid;
-  grid-area: ports;
-  grid-template-columns: repeat(5, 1fr);
+  margin: 10px;
   gap: 10px;
-  grid-template-areas:
-          "port-switch port-outward port-outward . .";
-  grid-auto-rows: minmax(60px, auto);
-  padding: 10px;
-}
-
-.ports-checked{
-  display: grid;
-  grid-area: ports;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  grid-template-areas:
-          "port-switch port-outward port-outward port-inward port-inward";
-  grid-auto-rows: minmax(60px, auto);
-  padding: 10px;
-}
-
-.port-item{
-  padding: 10px;
 }
