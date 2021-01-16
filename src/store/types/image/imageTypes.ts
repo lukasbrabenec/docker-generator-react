@@ -2,7 +2,8 @@ export interface Image {
   id: number;
   name: string;
   code: string;
-  imageVersions: ImageVersion[];
+  imageVersions: ImageVersion[] | undefined;
+  error: string | undefined;
 }
 
 export interface ImageVersion {
@@ -40,8 +41,8 @@ export interface Port {
   exposeToHost?: boolean | undefined;
 }
 
-export interface ImageState {
+export interface ImagesState {
   isLoaded: boolean;
   images: Image[];
-  imagesErr: any;
+  error: string | boolean;
 }

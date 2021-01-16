@@ -46,6 +46,9 @@ function App() {
       },
       type: darkState ? 'dark' : 'light',
     },
+    typography: {
+      fontFamily: ['Arvo'].join(','),
+    },
   });
 
   const handleThemeChange = () => {

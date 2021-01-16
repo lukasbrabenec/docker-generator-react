@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { GetApp } from '@material-ui/icons';
+import { Alert } from '@material-ui/lab';
 import ImageList from './ImageList';
 import {
   changeDockerVersion,
@@ -23,7 +24,7 @@ const Form = () => {
   const [projectName, setProjectName] = useState<string | undefined>(undefined);
 
   const imagesLoaded = useSelector((state: RootState) => state.image.isLoaded);
-  const imagesError = useSelector((state: RootState) => state.image.imagesErr);
+  const imagesError = useSelector((state: RootState) => state.image.error);
   const images = useSelector((state: RootState) => state.image.images);
   const versionsLoaded = useSelector(
     (state: RootState) => state.version.isLoaded,
@@ -58,7 +59,7 @@ const Form = () => {
 
   return (
     <Container maxWidth="lg">
-      {!imagesError && imagesLoaded && !versionsError && versionsLoaded ? (
+      {imagesLoaded && versionsLoaded ? (
         <form onSubmit={handleSubmit} className="form">
           <TextField
             className="general-option"
@@ -88,19 +89,17 @@ const Form = () => {
         </form>
       ) : (
         <>
-          {imagesError ? (
-            <div>{imagesError.message}</div>
+          {!imagesError || versionsError ? (
+            <CircularProgress style={{ margin: 'auto' }} />
           ) : (
-            <div>
-              <CircularProgress style={{ margin: 'auto' }} />
-            </div>
-          )}
-          {versionsError ? (
-            <div>{versionsError.message}</div>
-          ) : (
-            <div>
-              <CircularProgress style={{ margin: 'auto' }} />
-            </div>
+            <>
+              {typeof imagesError === 'string' ? (
+                <Alert severity="error">{imagesError}</Alert>
+              ) : null}
+              {typeof versionsError === 'string' ? (
+                <Alert severity="error">{versionsError}</Alert>
+              ) : null}
+            </>
           )}
         </>
       )}

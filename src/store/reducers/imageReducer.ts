@@ -1,28 +1,60 @@
-import { ImageState } from '../types/image/imageTypes';
+import { Image, ImagesState } from '../types/image/imageTypes';
 import { ImageActionTypes } from '../types/image/imageActionTypes';
 
-const initState: ImageState = {
+const initImageState: ImagesState = {
   isLoaded: false,
   images: [],
-  imagesErr: null,
+  error: false,
 };
 
 const imageReducer = (
-  state = initState,
+  state = initImageState,
   action: ImageActionTypes,
-): ImageState => {
+): ImagesState => {
   switch (action.type) {
     case 'INIT_IMAGES_SUCCESS':
       return {
+        ...state,
         isLoaded: true,
-        imagesErr: null,
         images: action.images,
       };
     case 'INIT_IMAGES_ERROR':
       return {
         ...state,
-        imagesErr: action.imagesError,
+        error: action.imagesError,
       };
+    case 'INIT_IMAGE_VERSIONS_SUCCESS': {
+      const otherImages = state.images.filter(
+        (image: Image) => image.id !== action.imageId,
+      );
+      const selectedImage = state.images.find(
+        (image: Image) => image.id === action.imageId,
+      );
+      if (selectedImage !== undefined) {
+        selectedImage.imageVersions = action.imageVersions;
+        return {
+          ...state,
+          images: [...otherImages, selectedImage],
+        };
+      }
+      return state;
+    }
+    case 'INIT_IMAGE_VERSIONS_ERROR': {
+      const otherImages = state.images.filter(
+        (image: Image) => image.id !== action.imageId,
+      );
+      const selectedImage = state.images.find(
+        (image: Image) => image.id === action.imageId,
+      );
+      if (selectedImage !== undefined) {
+        selectedImage.error = action.error;
+        return {
+          ...state,
+          images: [...otherImages, selectedImage],
+        };
+      }
+      return state;
+    }
     default:
       return state;
   }

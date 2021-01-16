@@ -24,6 +24,7 @@ import {
 } from '../store/types/image/imageTypes';
 
 import ImageWrapper from './image/ImageWrapper';
+import { initImageDetail } from '../store/actions/imageActions';
 
 interface IImageListProps {
   images: Image[];
@@ -71,10 +72,14 @@ const ImageList = ({ images }: IImageListProps) => {
 
   const handleSelectImage = (e: React.ChangeEvent<{}>) => {
     const selectedImageId = parseInt((e.target as HTMLInputElement).value, 10);
-    const newSelectedImage = images.find((image: Image) => {
+    const newSelectedImage = availableImages!.find((image: Image) => {
       return image.id === selectedImageId;
     });
     if (newSelectedImage) {
+      if (newSelectedImage.imageVersions === undefined) {
+        // init image versions only when it is not already stored in redux
+        dispatch(initImageDetail(newSelectedImage));
+      }
       const newSelected = selectedImages
         ? [...selectedImages, newSelectedImage]
         : [newSelectedImage];
