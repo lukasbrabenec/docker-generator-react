@@ -86,7 +86,7 @@ export const generate = (): ThunkAction<
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'file.zip');
+        link.setAttribute('download', `${request.generate.projectName}.zip`);
         document.body.appendChild(link);
         link.click();
       })
