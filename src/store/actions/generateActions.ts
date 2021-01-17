@@ -2,7 +2,12 @@ import axios from 'axios';
 import { ThunkAction } from 'redux-thunk';
 import { Action } from 'redux';
 import { RootStateOrAny } from 'react-redux';
-import { Environment, Extension, Port } from '../types/image/imageTypes';
+import {
+  Environment,
+  Extension,
+  Port,
+  Volume,
+} from '../types/image/imageTypes';
 
 export const changeProjectName = (
   projectName: string,
@@ -65,6 +70,15 @@ export const changePortsInRequest = (
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
     dispatch({ type: 'CHANGE_PORTS', imageVersionId, ports });
+  };
+};
+
+export const changeVolumesInRequest = (
+  imageVersionId: number,
+  volumes: Volume[],
+): ThunkAction<void, {}, {}, Action<string>> => {
+  return (dispatch) => {
+    dispatch({ type: 'CHANGE_VOLUMES', imageVersionId, volumes });
   };
 };
 

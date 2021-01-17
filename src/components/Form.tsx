@@ -21,7 +21,7 @@ const Form = () => {
   const [selectedVersion, setSelectedVersion] = useState<number | undefined>(
     undefined,
   );
-  const [projectName, setProjectName] = useState<string | undefined>(undefined);
+  const [projectName, setProjectName] = useState<string>('');
 
   const imagesLoaded = useSelector((state: RootState) => state.image.isLoaded);
   const imagesError = useSelector((state: RootState) => state.image.error);

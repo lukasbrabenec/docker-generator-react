@@ -99,6 +99,23 @@ const generateReducer = (
         ],
       };
     }
+    case 'CHANGE_VOLUMES': {
+      const currentImageVersion: GenerateImageVersion = state.imageVersions.find(
+        (imageVersion: GenerateImageVersion) =>
+          imageVersion.imageVersionId === action.imageVersionId,
+      )!;
+      const otherImageVersions = state.imageVersions.filter(
+        (imageVersion: GenerateImageVersion) =>
+          imageVersion.imageVersionId !== action.imageVersionId,
+      );
+      return {
+        ...state,
+        imageVersions: [
+          ...otherImageVersions,
+          { ...currentImageVersion, volumes: action.volumes },
+        ],
+      };
+    }
     case 'CHANGE_DOCKER_VERSION': {
       return {
         ...state,

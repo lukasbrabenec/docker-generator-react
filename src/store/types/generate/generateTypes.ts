@@ -12,7 +12,15 @@ export interface GeneratePort {
   id: number;
   inward: number;
   outward?: number;
-  exposeToHost?: boolean | undefined;
+  exposedToHost?: boolean | undefined;
+  exposedToContainers?: boolean | undefined;
+}
+
+export interface GenerateVolume {
+  id: number;
+  hostPath: string;
+  containerPath: string;
+  active: boolean;
 }
 
 export interface GenerateImageVersion {
@@ -20,6 +28,7 @@ export interface GenerateImageVersion {
   extensions?: GenerateExtension[];
   environments?: GenerateEnvironment[];
   ports?: GeneratePort[];
+  volumes?: GenerateVolume[];
 }
 
 export interface GenerateState {

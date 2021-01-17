@@ -14,6 +14,7 @@ import {
   changePortsInRequest,
   removeImageVersionInRequest,
   updateImageVersionInRequest,
+  changeVolumesInRequest,
 } from '../store/actions/generateActions';
 import {
   Environment,
@@ -21,6 +22,7 @@ import {
   Image,
   ImageVersion,
   Port,
+  Volume,
 } from '../store/types/image/imageTypes';
 
 import ImageWrapper from './image/ImageWrapper';
@@ -59,6 +61,11 @@ const ImageList = ({ images }: IImageListProps) => {
   const handleChangePortsInRequest = useCallback(
     (imageVersionId: number, ports: Port[]) =>
       dispatch(changePortsInRequest(imageVersionId, ports)),
+    [dispatch],
+  );
+  const handleChangeVolumesInRequest = useCallback(
+    (imageVersionId: number, volumes: Volume[]) =>
+      dispatch(changeVolumesInRequest(imageVersionId, volumes)),
     [dispatch],
   );
 
@@ -126,6 +133,7 @@ const ImageList = ({ images }: IImageListProps) => {
               changeExtensionsInRequest={handleChangeExtensionsInRequest}
               changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
               changePortsInRequest={handleChangePortsInRequest}
+              changeVolumesInRequest={handleChangeVolumesInRequest}
             />
           );
         })

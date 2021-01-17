@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TextField from '@material-ui/core/TextField';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -14,9 +14,13 @@ interface IPortsProps {
 const Ports = ({ ports, handlePortChange }: IPortsProps) => {
   const [portsState, setPortsState] = useState<GeneratePort[]>(
     ports.map((port: GeneratePort) => {
-      return { ...port, exposeToHost: false };
+      return { ...port, exposedToHost: false, exposedToContainers: true };
     }),
   );
+
+  useEffect(() => {
+    handlePortChange(portsState);
+  });
 
   const handlePortsStateChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -24,7 +28,9 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
     type: string,
   ) => {
     const changedValue =
-      type === 'exposeToHost' ? e.target.checked : e.target.value;
+      type === 'exposedToHost' || type === 'exposedToContainers'
+        ? e.target.checked
+        : e.target.value;
     const changedPort: GeneratePort = {
       ...portsState.find((port: GeneratePort) => port.id === portId)!,
       [type]: changedValue,
@@ -57,12 +63,16 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
                     control={
                       <Checkbox
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handlePortsStateChange(e, port.id, 'exposeToHost')
+                          handlePortsStateChange(
+                            e,
+                            port.id,
+                            'exposedToContainers',
+                          )
                         }
+                        checked={port.exposedToContainers}
                       />
                     }
-                    label="Publish port to host"
-                    style={{ justifySelf: 'flex-start' }}
+                    label="Publish port to other containers"
                   />
                   <TextField
                     label="Port exposed to other containers"
@@ -70,16 +80,29 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handlePortsStateChange(e, port.id, 'outward')
                     }
-                    id={`${port.id}`}
+                    id={`${port.id}-outward`}
+                    disabled={!port.exposedToContainers}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handlePortsStateChange(e, port.id, 'exposedToHost')
+                        }
+                        checked={port.exposedToHost}
+                      />
+                    }
+                    label="Publish port to host"
+                    style={{ justifySelf: 'flex-start' }}
                   />
                   <TextField
                     label="Port exposed to host"
-                    value={port.exposeToHost ? port.inward : 'Disabled'}
+                    value={port.exposedToHost ? port.inward : 'Disabled'}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handlePortsStateChange(e, port.id, 'inward')
                     }
-                    id={`${port.id}`}
-                    disabled={!port.exposeToHost}
+                    id={`${port.id}-inward`}
+                    disabled={!port.exposedToHost}
                   />
                 </FormControl>
               </div>

@@ -21,9 +21,14 @@ import {
   Image,
   ImageVersion,
   Port,
+  Volume,
 } from '../../store/types/image/imageTypes';
-import { GeneratePort } from '../../store/types/generate/generateTypes';
+import {
+  GeneratePort,
+  GenerateVolume,
+} from '../../store/types/generate/generateTypes';
 import { initImageDetail } from '../../store/actions/imageActions';
+import Volumes from './Volumes';
 
 interface IImageWrapperProps {
   image: Image;
@@ -44,6 +49,7 @@ interface IImageWrapperProps {
     environments: Environment[],
   ) => void;
   changePortsInRequest: (imageVersionId: number, ports: Port[]) => void;
+  changeVolumesInRequest: (imageVersionId: number, volumes: Volume[]) => void;
 }
 
 const ImageWrapper = ({
@@ -53,6 +59,7 @@ const ImageWrapper = ({
   changeExtensionsInRequest,
   changeEnvironmentsInRequest,
   changePortsInRequest,
+  changeVolumesInRequest,
 }: IImageWrapperProps) => {
   const [selectedVersion, setSelectedVersion] = useState<ImageVersion>();
   const [environments, setEnvironments] = useState<Environment[]>([]);
@@ -65,6 +72,16 @@ const ImageWrapper = ({
         500,
       ),
     [changePortsInRequest],
+  );
+
+  const delayedChangeVolumes = useMemo(
+    () =>
+      debounce(
+        (selectedVersionId, volumes) =>
+          changeVolumesInRequest(selectedVersionId, volumes),
+        500,
+      ),
+    [changeVolumesInRequest],
   );
 
   const dispatch = useDispatch();
@@ -120,6 +137,12 @@ const ImageWrapper = ({
     }
   };
 
+  const handleVolumeChange = (volumes: GenerateVolume[]) => {
+    if (typeof selectedVersion === 'object') {
+      delayedChangeVolumes(selectedVersion.id, volumes);
+    }
+  };
+
   return (
     <Paper
       variant="outlined"
@@ -163,7 +186,9 @@ const ImageWrapper = ({
               {typeof selectedVersion === 'object' &&
               selectedVersion.environments.length ? (
                 <>
-                  <p>Environments</p>
+                  <Typography variant="h5" component="h3">
+                    Environments
+                  </Typography>
                   <Environments
                     environments={selectedVersion.environments}
                     handleEnvironmentChange={handleEnvironmentChange}
@@ -180,7 +205,9 @@ const ImageWrapper = ({
             {typeof selectedVersion === 'object' &&
             selectedVersion.extensions.length ? (
               <Paper variant="outlined" className="image-item-group-column">
-                <p>Extensions</p>
+                <Typography variant="h5" component="h3">
+                  Extensions
+                </Typography>
                 <div className="image-item-group-row">
                   <ExtensionsDropdown
                     id="extension-system"
@@ -214,10 +241,32 @@ const ImageWrapper = ({
             <Paper variant="outlined" className="image-item-group-column">
               {selectedVersion?.ports?.length ? (
                 <>
-                  <p>Ports</p>
+                  <Typography variant="h5" component="h3">
+                    Ports
+                  </Typography>
                   <Ports
                     ports={selectedVersion.ports}
                     handlePortChange={handlePortChange}
+                  />
+                </>
+              ) : null}
+            </Paper>
+          </Fade>
+
+          <Fade
+            in={!!selectedVersion?.volumes?.length}
+            exit={false}
+            unmountOnExit
+          >
+            <Paper variant="outlined" className="image-item-group-column">
+              {selectedVersion?.volumes?.length ? (
+                <>
+                  <Typography variant="h5" component="h3">
+                    Volumes
+                  </Typography>
+                  <Volumes
+                    volumes={selectedVersion.volumes}
+                    handleVolumeChange={handleVolumeChange}
                   />
                 </>
               ) : null}

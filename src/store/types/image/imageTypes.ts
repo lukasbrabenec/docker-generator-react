@@ -32,13 +32,15 @@ export interface Environment {
 export interface Volume {
   id: number;
   hostPath: string;
+  containerPath: string;
+  active: boolean;
 }
 
 export interface Port {
   id: number;
   inward: number;
   outward: number;
-  exposeToHost?: boolean | undefined;
+  exposedToHost?: boolean | undefined;
 }
 
 export interface ImagesState {
