@@ -6,6 +6,7 @@ import {
   Environment,
   Extension,
   Port,
+  RestartType,
   Volume,
 } from '../types/image/imageTypes';
 
@@ -79,6 +80,15 @@ export const changeVolumesInRequest = (
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
     dispatch({ type: 'CHANGE_VOLUMES', imageVersionId, volumes });
+  };
+};
+
+export const changeRestartTypeInRequest = (
+  imageVersionId: number,
+  restartType: RestartType,
+): ThunkAction<void, {}, {}, Action<string>> => {
+  return (dispatch) => {
+    dispatch({ type: 'CHANGE_RESTART_TYPE', imageVersionId, restartType });
   };
 };
 

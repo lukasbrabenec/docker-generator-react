@@ -6,7 +6,6 @@ import {
   MenuItem,
   Paper,
   Select,
-  Typography,
 } from '@material-ui/core';
 import {
   changeEnvironmentsInRequest,
@@ -15,6 +14,7 @@ import {
   removeImageVersionInRequest,
   updateImageVersionInRequest,
   changeVolumesInRequest,
+  changeRestartTypeInRequest,
 } from '../store/actions/generateActions';
 import {
   Environment,
@@ -22,6 +22,7 @@ import {
   Image,
   ImageVersion,
   Port,
+  RestartType,
   Volume,
 } from '../store/types/image/imageTypes';
 
@@ -30,9 +31,10 @@ import { initImageDetail } from '../store/actions/imageActions';
 
 interface IImageListProps {
   images: Image[];
+  restartTypes: RestartType[];
 }
 
-const ImageList = ({ images }: IImageListProps) => {
+const ImageList = ({ images, restartTypes }: IImageListProps) => {
   const [availableImages, setAvailableImages] = useState<Image[] | undefined>(
     images,
   );
@@ -66,6 +68,11 @@ const ImageList = ({ images }: IImageListProps) => {
   const handleChangeVolumesInRequest = useCallback(
     (imageVersionId: number, volumes: Volume[]) =>
       dispatch(changeVolumesInRequest(imageVersionId, volumes)),
+    [dispatch],
+  );
+  const handleChangeRestartTypeInRequest = useCallback(
+    (imageVersionId: number, restartType: RestartType) =>
+      dispatch(changeRestartTypeInRequest(imageVersionId, restartType)),
     [dispatch],
   );
 
@@ -127,6 +134,7 @@ const ImageList = ({ images }: IImageListProps) => {
           return (
             <ImageWrapper
               image={image}
+              restartTypes={restartTypes}
               key={image.id}
               updateImageVersionInRequest={handleUpdateImageVersionInRequest}
               handleRemoveImage={handleRemoveImage}
@@ -134,6 +142,7 @@ const ImageList = ({ images }: IImageListProps) => {
               changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
               changePortsInRequest={handleChangePortsInRequest}
               changeVolumesInRequest={handleChangeVolumesInRequest}
+              changeRestartTypeInRequest={handleChangeRestartTypeInRequest}
             />
           );
         })
@@ -142,7 +151,6 @@ const ImageList = ({ images }: IImageListProps) => {
       )}
       {availableImages && availableImages.length ? (
         <>
-          <Typography variant="body1">Available images</Typography>
           <Paper variant="outlined" className="image-item-group-row">
             <FormControl
               style={{ width: 500 }}
@@ -150,7 +158,7 @@ const ImageList = ({ images }: IImageListProps) => {
               focused={false}
               required={!selectedImages?.length}
             >
-              <InputLabel htmlFor="images">image</InputLabel>
+              <InputLabel htmlFor="images">Add Image</InputLabel>
               <Select
                 labelId="images"
                 id="images"

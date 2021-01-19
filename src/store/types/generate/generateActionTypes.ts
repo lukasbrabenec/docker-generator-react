@@ -4,6 +4,7 @@ import {
   GeneratePort,
   GenerateVolume,
 } from './generateTypes';
+import { RestartType } from '../image/imageTypes';
 
 export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
 export const CHANGE_DOCKER_VERSION = 'CHANGE_DOCKER_VERSION';
@@ -13,6 +14,7 @@ export const CHANGE_EXTENSIONS = 'CHANGE_EXTENSIONS';
 export const CHANGE_ENVIRONMENTS = 'CHANGE_ENVIRONMENTS';
 export const CHANGE_PORTS = 'CHANGE_PORTS';
 export const CHANGE_VOLUMES = 'CHANGE_VOLUMES';
+export const CHANGE_RESTART_TYPE = 'CHANGE_RESTART_TYPE';
 
 interface ChangeProjectNameAction {
   type: typeof CHANGE_PROJECT_NAME;
@@ -56,8 +58,13 @@ interface ChangePortsAction {
 interface ChangeVolumesAction {
   type: typeof CHANGE_VOLUMES;
   imageVersionId: number;
-
   volumes: GenerateVolume[];
+}
+
+interface ChangeRestartTypeAction {
+  type: typeof CHANGE_RESTART_TYPE;
+  imageVersionId: number;
+  restartType: RestartType;
 }
 
 export type GenerateActionTypes =
@@ -68,4 +75,5 @@ export type GenerateActionTypes =
   | ChangeExtensionsAction
   | ChangeEnvironmentsAction
   | ChangePortsAction
-  | ChangeVolumesAction;
+  | ChangeVolumesAction
+  | ChangeRestartTypeAction;

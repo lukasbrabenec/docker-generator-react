@@ -11,6 +11,10 @@ import {
 import { Delete, Refresh } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import { useDispatch } from 'react-redux';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 import ExtensionsDropdown from './ExtensionsDropdown';
 import Environments from './Environments';
 import ImageVersionSelect from './ImageVersionSelect';
@@ -21,6 +25,7 @@ import {
   Image,
   ImageVersion,
   Port,
+  RestartType,
   Volume,
 } from '../../store/types/image/imageTypes';
 import {
@@ -32,6 +37,7 @@ import Volumes from './Volumes';
 
 interface IImageWrapperProps {
   image: Image;
+  restartTypes: RestartType[] | undefined;
   updateImageVersionInRequest: (
     newImageVersionId: number,
     previousImageVersionId: number | undefined,
@@ -50,16 +56,22 @@ interface IImageWrapperProps {
   ) => void;
   changePortsInRequest: (imageVersionId: number, ports: Port[]) => void;
   changeVolumesInRequest: (imageVersionId: number, volumes: Volume[]) => void;
+  changeRestartTypeInRequest: (
+    imageVersionId: number,
+    restartType: RestartType,
+  ) => void;
 }
 
 const ImageWrapper = ({
   image,
+  restartTypes,
   updateImageVersionInRequest,
   handleRemoveImage,
   changeExtensionsInRequest,
   changeEnvironmentsInRequest,
   changePortsInRequest,
   changeVolumesInRequest,
+  changeRestartTypeInRequest,
 }: IImageWrapperProps) => {
   const [selectedVersion, setSelectedVersion] = useState<ImageVersion>();
   const [environments, setEnvironments] = useState<Environment[]>([]);
@@ -140,6 +152,25 @@ const ImageWrapper = ({
   const handleVolumeChange = (volumes: GenerateVolume[]) => {
     if (typeof selectedVersion === 'object') {
       delayedChangeVolumes(selectedVersion.id, volumes);
+    }
+  };
+
+  const handleRestartTypeChange = (e: React.ChangeEvent<{}>) => {
+    if (typeof selectedVersion === 'object') {
+      const target = e.target as HTMLSelectElement;
+      if (typeof restartTypes !== 'undefined') {
+        const selectedRestartType = restartTypes.find(
+          (restartType: RestartType) =>
+            restartType.id === parseInt(target.value, 10),
+        );
+        if (typeof selectedRestartType === 'object') {
+          setSelectedVersion({
+            ...selectedVersion,
+            restartType: selectedRestartType,
+          });
+          changeRestartTypeInRequest(selectedVersion.id, selectedRestartType);
+        }
+      }
     }
   };
 
@@ -268,6 +299,42 @@ const ImageWrapper = ({
                     volumes={selectedVersion.volumes}
                     handleVolumeChange={handleVolumeChange}
                   />
+                </>
+              ) : null}
+            </Paper>
+          </Fade>
+
+          <Fade
+            in={!!(typeof selectedVersion === 'object' && restartTypes?.length)}
+            exit={false}
+            unmountOnExit
+          >
+            <Paper variant="outlined" className="image-item-group-row">
+              {typeof selectedVersion === 'object' && restartTypes?.length ? (
+                <>
+                  <FormControl size="small" required>
+                    <InputLabel htmlFor="restartTypes">Restart Type</InputLabel>
+                    <Select
+                      labelId="restartTypes"
+                      id="restartTypes"
+                      value={
+                        typeof selectedVersion?.restartType === 'undefined'
+                          ? ''
+                          : selectedVersion?.restartType.id
+                      }
+                      style={{ width: 500 }}
+                      onChange={handleRestartTypeChange}
+                      required
+                    >
+                      {restartTypes.map((restartType: RestartType) => {
+                        return (
+                          <MenuItem value={restartType.id} key={restartType.id}>
+                            {restartType.type}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
                 </>
               ) : null}
             </Paper>

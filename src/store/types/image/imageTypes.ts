@@ -13,6 +13,7 @@ export interface ImageVersion {
   environments: Environment[];
   volumes: Volume[];
   ports: Port[];
+  restartType?: RestartType;
 }
 
 export interface Extension {
@@ -43,8 +44,14 @@ export interface Port {
   exposedToHost?: boolean | undefined;
 }
 
+export interface RestartType {
+  id: number;
+  type: string;
+}
+
 export interface ImagesState {
   isLoaded: boolean;
   images: Image[];
+  restartTypes: RestartType[];
   error: string | boolean;
 }

@@ -29,6 +29,7 @@ export interface GenerateImageVersion {
   environments?: GenerateEnvironment[];
   ports?: GeneratePort[];
   volumes?: GenerateVolume[];
+  restartType?: number;
 }
 
 export interface GenerateState {

@@ -30,20 +30,25 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
     const changedValue =
       type === 'exposedToHost' || type === 'exposedToContainers'
         ? e.target.checked
-        : e.target.value;
-    const changedPort: GeneratePort = {
-      ...portsState.find((port: GeneratePort) => port.id === portId)!,
-      [type]: changedValue,
-    };
-    const otherPorts: GeneratePort[] = portsState.filter(
-      (port: GeneratePort) => port.id !== portId,
-    );
-    const updatedPorts = (otherPorts.length
-      ? [...otherPorts, changedPort]
-      : [changedPort]
-    ).sort((a: GeneratePort, b: GeneratePort) => a.id - b.id);
-    setPortsState(updatedPorts);
-    handlePortChange(updatedPorts);
+        : parseInt(e.target.value, 10);
+    if (
+      (typeof changedValue === 'number' && !Number.isNaN(changedValue)) ||
+      typeof changedValue === 'boolean'
+    ) {
+      const changedPort: GeneratePort = {
+        ...portsState.find((port: GeneratePort) => port.id === portId)!,
+        [type]: changedValue,
+      };
+      const otherPorts: GeneratePort[] = portsState.filter(
+        (port: GeneratePort) => port.id !== portId,
+      );
+      const updatedPorts = (otherPorts.length
+        ? [...otherPorts, changedPort]
+        : [changedPort]
+      ).sort((a: GeneratePort, b: GeneratePort) => a.id - b.id);
+      setPortsState(updatedPorts);
+      handlePortChange(updatedPorts);
+    }
   };
 
   return (
@@ -76,7 +81,7 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
                   />
                   <TextField
                     label="Port exposed to other containers"
-                    value={port.outward}
+                    value={port.exposedToContainers ? port.outward : 'Disabled'}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       handlePortsStateChange(e, port.id, 'outward')
                     }

@@ -12,7 +12,7 @@ import {
   changeProjectName,
   generate,
 } from '../store/actions/generateActions';
-import { initImages } from '../store/actions/imageActions';
+import { initImages, initRestartTypes } from '../store/actions/imageActions';
 import { initVersions } from '../store/actions/versionActions';
 import DockerEngineVersion from './DockerEngineVersion';
 import { RootState } from '../store/types/root/rootState';
@@ -33,12 +33,16 @@ const Form = () => {
     (state: RootState) => state.version.versionsError,
   );
   const versions = useSelector((state: RootState) => state.version.versions);
+  const restartTypes = useSelector(
+    (state: RootState) => state.image.restartTypes,
+  );
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(initVersions());
     dispatch(initImages());
+    dispatch(initRestartTypes());
   }, [dispatch]);
 
   const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,7 +80,7 @@ const Form = () => {
             selectedVersion={selectedVersion}
             handleVersionChange={handleVersionChange}
           />
-          <ImageList images={images} />
+          <ImageList images={images} restartTypes={restartTypes} />
           <Button
             type="submit"
             variant="contained"

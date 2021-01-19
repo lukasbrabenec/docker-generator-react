@@ -116,6 +116,23 @@ const generateReducer = (
         ],
       };
     }
+    case 'CHANGE_RESTART_TYPE': {
+      const currentImageVersion: GenerateImageVersion = state.imageVersions.find(
+        (imageVersion: GenerateImageVersion) =>
+          imageVersion.imageVersionId === action.imageVersionId,
+      )!;
+      const otherImageVersions = state.imageVersions.filter(
+        (imageVersion: GenerateImageVersion) =>
+          imageVersion.imageVersionId !== action.imageVersionId,
+      );
+      return {
+        ...state,
+        imageVersions: [
+          ...otherImageVersions,
+          { ...currentImageVersion, restartType: action.restartType.id },
+        ],
+      };
+    }
     case 'CHANGE_DOCKER_VERSION': {
       return {
         ...state,

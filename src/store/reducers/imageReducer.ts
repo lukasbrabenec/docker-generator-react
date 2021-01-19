@@ -4,6 +4,7 @@ import { ImageActionTypes } from '../types/image/imageActionTypes';
 const initImageState: ImagesState = {
   isLoaded: false,
   images: [],
+  restartTypes: [],
   error: false,
 };
 
@@ -21,6 +22,7 @@ const imageReducer = (
     case 'INIT_IMAGES_ERROR':
       return {
         ...state,
+        isLoaded: false,
         error: action.imagesError,
       };
     case 'INIT_IMAGE_VERSIONS_SUCCESS': {
@@ -54,6 +56,19 @@ const imageReducer = (
         };
       }
       return state;
+    }
+    case 'INIT_RESTART_TYPES_SUCCESS': {
+      return {
+        ...state,
+        restartTypes: action.restartTypes,
+      };
+    }
+    case 'INIT_RESTART_TYPES_ERROR': {
+      return {
+        ...state,
+        isLoaded: false,
+        error: action.restartTypesError,
+      };
     }
     default:
       return state;

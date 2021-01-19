@@ -26,19 +26,41 @@ export const initImageDetail = (
     axios
       .get(`http://localhost:8080/api/v1/images/${image.id}`)
       .then((res) => {
-        console.log(res);
         dispatch({
           type: 'INIT_IMAGE_VERSIONS_SUCCESS',
           imageId: image.id,
           imageVersions: res.data.data[0].imageVersions,
         });
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         dispatch({
           type: 'INIT_IMAGE_VERSIONS_ERROR',
           imageId: image.id,
           error: `Loading ${image.name} detail failed!`,
+        });
+      });
+  };
+};
+
+export const initRestartTypes = (): ThunkAction<
+  void,
+  {},
+  {},
+  Action<string>
+> => {
+  return (dispatch) => {
+    axios
+      .get('http://localhost:8080/api/v1/restart-types')
+      .then((res) => {
+        dispatch({
+          type: 'INIT_RESTART_TYPES_SUCCESS',
+          restartTypes: res.data.data,
+        });
+      })
+      .catch(() => {
+        dispatch({
+          type: 'INIT_RESTART_TYPES_ERROR',
+          restartTypesError: 'Loading images failed!',
         });
       });
   };
