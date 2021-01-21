@@ -18,6 +18,15 @@ export const changeProjectName = (
   };
 };
 
+export const updateImageNameInRequest = (
+  imageVersionId: number,
+  imageName: string,
+): ThunkAction<void, {}, {}, Action<string>> => {
+  return (dispatch) => {
+    dispatch({ type: 'UPDATE_IMAGE_NAME', imageVersionId, imageName });
+  };
+};
+
 export const changeDockerVersion = (
   versionId: number,
 ): ThunkAction<void, {}, {}, Action<string>> => {

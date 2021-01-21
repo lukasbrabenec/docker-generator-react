@@ -7,6 +7,7 @@ import {
 import { RestartType } from '../image/imageTypes';
 
 export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
+export const UPDATE_IMAGE_NAME = 'UPDATE_IMAGE_NAME';
 export const CHANGE_DOCKER_VERSION = 'CHANGE_DOCKER_VERSION';
 export const UPDATE_IMAGE_VERSION = 'UPDATE_IMAGE_VERSION';
 export const REMOVE_IMAGE_VERSION = 'REMOVE_IMAGE_VERSION';
@@ -24,6 +25,12 @@ interface ChangeProjectNameAction {
 interface ChangeDockerVersionAction {
   type: typeof CHANGE_DOCKER_VERSION;
   versionId: number;
+}
+
+interface UpdateImageName {
+  type: typeof UPDATE_IMAGE_NAME;
+  imageVersionId: number;
+  imageName: string;
 }
 
 interface UpdateImageVersionAction {
@@ -69,6 +76,7 @@ interface ChangeRestartTypeAction {
 
 export type GenerateActionTypes =
   | ChangeProjectNameAction
+  | UpdateImageName
   | ChangeDockerVersionAction
   | UpdateImageVersionAction
   | RemoveImageVersionAction

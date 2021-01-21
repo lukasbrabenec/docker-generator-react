@@ -1,5 +1,6 @@
 import { GenerateActionTypes } from '../types/generate/generateActionTypes';
 import {
+  GenerateExtension,
   GenerateImageVersion,
   GenerateState,
 } from '../types/generate/generateTypes';
@@ -19,6 +20,23 @@ const generateReducer = (
       return {
         ...state,
         projectName: action.projectName,
+      };
+    }
+    case 'UPDATE_IMAGE_NAME': {
+      const currentImageVersion: GenerateImageVersion = state.imageVersions.find(
+        (imageVersion: GenerateImageVersion): boolean =>
+          imageVersion.imageVersionId === action.imageVersionId,
+      )!;
+      const otherImageVersions: GenerateImageVersion[] = state.imageVersions.filter(
+        (imageVersion: GenerateImageVersion) =>
+          imageVersion.imageVersionId !== action.imageVersionId,
+      );
+      return {
+        ...state,
+        imageVersions: [
+          ...otherImageVersions,
+          { ...currentImageVersion, imageName: action.imageName },
+        ],
       };
     }
     case 'UPDATE_IMAGE_VERSION': {
@@ -57,11 +75,23 @@ const generateReducer = (
         (imageVersion: GenerateImageVersion) =>
           imageVersion.imageVersionId !== action.imageVersionId,
       );
+      const updatedExtensions = (currentImageVersion.extensions !== undefined
+        ? [...currentImageVersion.extensions!, ...action.extensions]
+        : [...action.extensions]
+      ).filter(
+        (a: GenerateExtension, index: number, self: GenerateExtension[]) =>
+          self.findIndex((b: GenerateExtension) => {
+            return b.id === a.id;
+          }) === index,
+      );
       return {
         ...state,
         imageVersions: [
           ...otherImageVersions,
-          { ...currentImageVersion, extensions: action.extensions },
+          {
+            ...currentImageVersion,
+            extensions: updatedExtensions,
+          },
         ],
       };
     }

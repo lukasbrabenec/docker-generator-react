@@ -15,6 +15,7 @@ import {
   updateImageVersionInRequest,
   changeVolumesInRequest,
   changeRestartTypeInRequest,
+  updateImageNameInRequest,
 } from '../store/actions/generateActions';
 import {
   Environment,
@@ -48,6 +49,11 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
       dispatch(
         updateImageVersionInRequest(newImageVersionId, previousImageVersionId),
       ),
+    [dispatch],
+  );
+  const handleUpdateImageNameInRequest = useCallback(
+    (imageVersionId: number, imageName: string) =>
+      dispatch(updateImageNameInRequest(imageVersionId, imageName)),
     [dispatch],
   );
   const handleChangeExtensionsInRequest = useCallback(
@@ -137,6 +143,7 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
               restartTypes={restartTypes}
               key={image.id}
               updateImageVersionInRequest={handleUpdateImageVersionInRequest}
+              updateImageNameInRequest={handleUpdateImageNameInRequest}
               handleRemoveImage={handleRemoveImage}
               changeExtensionsInRequest={handleChangeExtensionsInRequest}
               changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}

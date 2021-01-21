@@ -15,6 +15,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import TextField from '@material-ui/core/TextField';
 import ExtensionsDropdown from './ExtensionsDropdown';
 import Environments from './Environments';
 import ImageVersionSelect from './ImageVersionSelect';
@@ -42,6 +43,7 @@ interface IImageWrapperProps {
     newImageVersionId: number,
     previousImageVersionId: number | undefined,
   ) => void;
+  updateImageNameInRequest: (imageVersionId: number, imageName: string) => void;
   handleRemoveImage: (
     image: Image,
     imageVersion: ImageVersion | undefined,
@@ -66,6 +68,7 @@ const ImageWrapper = ({
   image,
   restartTypes,
   updateImageVersionInRequest,
+  updateImageNameInRequest,
   handleRemoveImage,
   changeExtensionsInRequest,
   changeEnvironmentsInRequest,
@@ -96,9 +99,19 @@ const ImageWrapper = ({
     [changeVolumesInRequest],
   );
 
+  const delayedUpdateImageName = useMemo(
+    () =>
+      debounce(
+        (selectedVersionId, imageName) =>
+          updateImageNameInRequest(selectedVersionId, imageName),
+        500,
+      ),
+    [updateImageNameInRequest],
+  );
+
   const dispatch = useDispatch();
-  const handleRefreshDetail = (image1: Image) => {
-    dispatch(initImageDetail(image1));
+  const handleRefreshDetail = (selectedImage: Image) => {
+    dispatch(initImageDetail(selectedImage));
   };
 
   const { imageVersions } = image;
@@ -208,6 +221,53 @@ const ImageWrapper = ({
               handleVersionChange={handleVersionChange}
             />
           </Paper>
+          {typeof selectedVersion === 'object' ? (
+            <Paper variant="outlined" className="image-item-group-row">
+              <TextField
+                label="Image name"
+                key="image-name"
+                onChange={(e) =>
+                  delayedUpdateImageName(selectedVersion.id, e.target.value)
+                }
+                style={{ width: '300px' }}
+              />
+            </Paper>
+          ) : null}
+          <Fade
+            in={!!(typeof selectedVersion === 'object' && restartTypes?.length)}
+            exit={false}
+            unmountOnExit
+          >
+            <Paper variant="outlined" className="image-item-group-row">
+              {typeof selectedVersion === 'object' && restartTypes?.length ? (
+                <>
+                  <FormControl size="small" required>
+                    <InputLabel htmlFor="restartTypes">Restart Type</InputLabel>
+                    <Select
+                      labelId="restartTypes"
+                      id="restartTypes"
+                      value={
+                        typeof selectedVersion?.restartType === 'undefined'
+                          ? ''
+                          : selectedVersion?.restartType.id
+                      }
+                      style={{ width: 500 }}
+                      onChange={handleRestartTypeChange}
+                      required
+                    >
+                      {restartTypes.map((restartType: RestartType) => {
+                        return (
+                          <MenuItem value={restartType.id} key={restartType.id}>
+                            {restartType.type}
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+                </>
+              ) : null}
+            </Paper>
+          </Fade>
           <Fade
             in={!!selectedVersion?.environments?.length}
             exit={false}
@@ -299,42 +359,6 @@ const ImageWrapper = ({
                     volumes={selectedVersion.volumes}
                     handleVolumeChange={handleVolumeChange}
                   />
-                </>
-              ) : null}
-            </Paper>
-          </Fade>
-
-          <Fade
-            in={!!(typeof selectedVersion === 'object' && restartTypes?.length)}
-            exit={false}
-            unmountOnExit
-          >
-            <Paper variant="outlined" className="image-item-group-row">
-              {typeof selectedVersion === 'object' && restartTypes?.length ? (
-                <>
-                  <FormControl size="small" required>
-                    <InputLabel htmlFor="restartTypes">Restart Type</InputLabel>
-                    <Select
-                      labelId="restartTypes"
-                      id="restartTypes"
-                      value={
-                        typeof selectedVersion?.restartType === 'undefined'
-                          ? ''
-                          : selectedVersion?.restartType.id
-                      }
-                      style={{ width: 500 }}
-                      onChange={handleRestartTypeChange}
-                      required
-                    >
-                      {restartTypes.map((restartType: RestartType) => {
-                        return (
-                          <MenuItem value={restartType.id} key={restartType.id}>
-                            {restartType.type}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
                 </>
               ) : null}
             </Paper>

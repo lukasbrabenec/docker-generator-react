@@ -6,6 +6,7 @@ export interface GenerateEnvironment {
 export interface GenerateExtension {
   id: number;
   name: string;
+  special?: boolean;
 }
 
 export interface GeneratePort {
@@ -25,6 +26,7 @@ export interface GenerateVolume {
 
 export interface GenerateImageVersion {
   imageVersionId: number;
+  imageName?: string;
   extensions?: GenerateExtension[];
   environments?: GenerateEnvironment[];
   ports?: GeneratePort[];
