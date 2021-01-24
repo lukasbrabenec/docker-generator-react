@@ -1,5 +1,4 @@
-import React, { useMemo, useState } from 'react';
-import { debounce } from 'lodash';
+import React, { ChangeEvent, useState } from 'react';
 import Paper from '@material-ui/core/Paper';
 import Fade from '@material-ui/core/Fade';
 import {
@@ -16,6 +15,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import TextField from '@material-ui/core/TextField';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import ExtensionsDropdown from './ExtensionsDropdown';
 import Environments from './Environments';
 import ImageVersionSelect from './ImageVersionSelect';
@@ -29,85 +29,81 @@ import {
   RestartType,
   Volume,
 } from '../../store/types/image/imageTypes';
-import {
-  GeneratePort,
-  GenerateVolume,
-} from '../../store/types/generate/generateTypes';
 import { initImageDetail } from '../../store/actions/imageActions';
 import Volumes from './Volumes';
+import DependenciesDropDown from './DependenciesDropdown';
 
 interface IImageWrapperProps {
   image: Image;
+  selectedImages: Image[];
   restartTypes: RestartType[] | undefined;
-  updateImageVersionInRequest: (
-    newImageVersionId: number,
-    previousImageVersionId: number | undefined,
+  updateImageVersion: (
+    newImageVersion: ImageVersion,
+    previousImageVersionID: number | undefined,
   ) => void;
-  updateImageNameInRequest: (imageVersionId: number, imageName: string) => void;
+  updateImageName: (imageVersionID: number, imageName: string) => void;
   handleRemoveImage: (
     image: Image,
     imageVersion: ImageVersion | undefined,
   ) => void;
-  changeExtensionsInRequest: (
-    imageVersionId: number,
-    extensions: Extension[],
-  ) => void;
-  changeEnvironmentsInRequest: (
+  changeExtensions: (imageVersionID: number, extensions: Extension[]) => void;
+  changeEnvironments: (
     imageVersionId: number,
     environments: Environment[],
   ) => void;
-  changePortsInRequest: (imageVersionId: number, ports: Port[]) => void;
-  changeVolumesInRequest: (imageVersionId: number, volumes: Volume[]) => void;
-  changeRestartTypeInRequest: (
-    imageVersionId: number,
-    restartType: RestartType,
+  changePorts: (imageVersionID: number, ports: Port[]) => void;
+  changeVolumes: (imageVersionID: number, volumes: Volume[]) => void;
+  changeDependencies: (
+    imageVersion: ImageVersion,
+    image: Image,
+    dependencies: Image[],
   ) => void;
+  changeRestartType: (imageVersionID: number, restartType: RestartType) => void;
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    row: {
+      width: '95%',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      padding: '10px',
+      margin: '10px',
+      gap: '10px',
+      [theme.breakpoints.down('md')]: {
+        flexDirection: 'column',
+        alignItems: 'center',
+      },
+    },
+    column: {
+      width: '95%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      padding: '10px',
+      margin: '10px',
+      gap: '10px',
+    },
+  }),
+);
 
 const ImageWrapper = ({
   image,
+  selectedImages,
   restartTypes,
-  updateImageVersionInRequest,
-  updateImageNameInRequest,
+  updateImageVersion,
+  updateImageName,
   handleRemoveImage,
-  changeExtensionsInRequest,
-  changeEnvironmentsInRequest,
-  changePortsInRequest,
-  changeVolumesInRequest,
-  changeRestartTypeInRequest,
+  changeExtensions,
+  changeEnvironments,
+  changePorts,
+  changeVolumes,
+  changeRestartType,
+  changeDependencies,
 }: IImageWrapperProps) => {
   const [selectedVersion, setSelectedVersion] = useState<ImageVersion>();
   const [environments, setEnvironments] = useState<Environment[]>([]);
-
-  const delayedChangePorts = useMemo(
-    () =>
-      debounce(
-        (selectedVersionId, ports) =>
-          changePortsInRequest(selectedVersionId, ports),
-        500,
-      ),
-    [changePortsInRequest],
-  );
-
-  const delayedChangeVolumes = useMemo(
-    () =>
-      debounce(
-        (selectedVersionId, volumes) =>
-          changeVolumesInRequest(selectedVersionId, volumes),
-        500,
-      ),
-    [changeVolumesInRequest],
-  );
-
-  const delayedUpdateImageName = useMemo(
-    () =>
-      debounce(
-        (selectedVersionId, imageName) =>
-          updateImageNameInRequest(selectedVersionId, imageName),
-        500,
-      ),
-    [updateImageNameInRequest],
-  );
 
   const dispatch = useDispatch();
   const handleRefreshDetail = (selectedImage: Image) => {
@@ -127,8 +123,17 @@ const ImageWrapper = ({
       (imageVersion: ImageVersion) => imageVersion.id === selectedVersionId,
     );
     if (typeof newSelectedVersion === 'object') {
-      setSelectedVersion(newSelectedVersion);
-      updateImageVersionInRequest(selectedVersionId, oldSelectedVersionId);
+      setSelectedVersion({
+        ...newSelectedVersion,
+        restartType: restartTypes![0],
+      });
+      updateImageVersion(
+        {
+          ...newSelectedVersion,
+          restartType: restartTypes![0],
+        },
+        oldSelectedVersionId,
+      );
     }
   };
 
@@ -137,7 +142,7 @@ const ImageWrapper = ({
     extensions: Extension[],
   ) => {
     if (typeof selectedVersion === 'object') {
-      changeExtensionsInRequest(selectedVersion.id, extensions);
+      changeExtensions(selectedVersion.id, extensions);
     }
   };
 
@@ -152,19 +157,21 @@ const ImageWrapper = ({
     ];
     setEnvironments(newEnvironments);
     if (typeof selectedVersion === 'object') {
-      changeEnvironmentsInRequest(selectedVersion.id, newEnvironments);
+      changeEnvironments(selectedVersion.id, newEnvironments);
     }
   };
 
-  const handlePortChange = (ports: GeneratePort[]) => {
+  const handlePortChange = (ports: Port[]) => {
     if (typeof selectedVersion === 'object') {
-      delayedChangePorts(selectedVersion.id, ports);
+      changePorts(selectedVersion.id, ports);
+      setSelectedVersion({ ...selectedVersion, ports });
     }
   };
 
-  const handleVolumeChange = (volumes: GenerateVolume[]) => {
+  const handleVolumeChange = (volumes: Volume[]) => {
     if (typeof selectedVersion === 'object') {
-      delayedChangeVolumes(selectedVersion.id, volumes);
+      changeVolumes(selectedVersion.id, volumes);
+      setSelectedVersion({ ...selectedVersion, volumes });
     }
   };
 
@@ -181,22 +188,25 @@ const ImageWrapper = ({
             ...selectedVersion,
             restartType: selectedRestartType,
           });
-          changeRestartTypeInRequest(selectedVersion.id, selectedRestartType);
+          changeRestartType(selectedVersion.id, selectedRestartType);
         }
       }
     }
   };
 
+  const handleDependenciesChange = (
+    _e: React.ChangeEvent<{}>,
+    images: Image[],
+  ) => {
+    if (typeof selectedVersion === 'object') {
+      changeDependencies(selectedVersion, image, images);
+    }
+  };
+
+  const classes = useStyles();
+
   return (
-    <Paper
-      variant="outlined"
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        borderColor: 'rgba(0, 0, 0, 0.25)',
-        padding: '10px',
-      }}
-    >
+    <>
       <Tooltip title="Remove image">
         <IconButton
           style={{
@@ -209,176 +219,219 @@ const ImageWrapper = ({
           <Delete />
         </IconButton>
       </Tooltip>
-      <Typography variant="h4" component="h2">
-        {`${image.name} image`}
-      </Typography>
-      {imageVersions !== undefined ? (
-        <>
-          <Paper variant="outlined" className="image-item-group-row">
-            <ImageVersionSelect
-              imageVersions={imageVersions}
-              selectedVersion={selectedVersion}
-              handleVersionChange={handleVersionChange}
-            />
-          </Paper>
-          {typeof selectedVersion === 'object' ? (
-            <Paper variant="outlined" className="image-item-group-row">
-              <TextField
-                label="Image name"
-                key="image-name"
-                onChange={(e) =>
-                  delayedUpdateImageName(selectedVersion.id, e.target.value)
-                }
-                style={{ width: '300px' }}
+      <Paper
+        variant="outlined"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyItems: 'center',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
+        <Typography variant="h4" component="h2">
+          {`${image.name} image`}
+        </Typography>
+        {imageVersions !== undefined ? (
+          <>
+            <Paper variant="outlined" className={classes.row}>
+              <ImageVersionSelect
+                imageVersions={imageVersions}
+                selectedVersion={selectedVersion}
+                handleVersionChange={handleVersionChange}
               />
             </Paper>
-          ) : null}
-          <Fade
-            in={!!(typeof selectedVersion === 'object' && restartTypes?.length)}
-            exit={false}
-            unmountOnExit
-          >
-            <Paper variant="outlined" className="image-item-group-row">
-              {typeof selectedVersion === 'object' && restartTypes?.length ? (
-                <>
-                  <FormControl size="small" required>
-                    <InputLabel htmlFor="restartTypes">Restart Type</InputLabel>
-                    <Select
-                      labelId="restartTypes"
-                      id="restartTypes"
-                      value={
-                        typeof selectedVersion?.restartType === 'undefined'
-                          ? ''
-                          : selectedVersion?.restartType.id
-                      }
-                      style={{ width: 500 }}
-                      onChange={handleRestartTypeChange}
+            {typeof selectedVersion === 'object' ? (
+              <Paper variant="outlined" className={classes.row}>
+                <TextField
+                  label="Image name"
+                  key="image-name"
+                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                    updateImageName(selectedVersion.id, e.target.value)
+                  }
+                  style={{ width: '60%' }}
+                />
+              </Paper>
+            ) : null}
+            <Fade
+              in={
+                !!(typeof selectedVersion === 'object' && restartTypes?.length)
+              }
+              exit={false}
+              unmountOnExit
+            >
+              <Paper variant="outlined" className={classes.row}>
+                {typeof selectedVersion === 'object' && restartTypes?.length ? (
+                  <>
+                    <FormControl
+                      size="small"
+                      style={{ minWidth: '60%' }}
                       required
                     >
-                      {restartTypes.map((restartType: RestartType) => {
-                        return (
-                          <MenuItem value={restartType.id} key={restartType.id}>
-                            {restartType.type}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                </>
-              ) : null}
-            </Paper>
-          </Fade>
-          <Fade
-            in={!!selectedVersion?.environments?.length}
-            exit={false}
-            unmountOnExit
-          >
-            <Paper variant="outlined" className="image-item-group-column">
-              {typeof selectedVersion === 'object' &&
-              selectedVersion.environments.length ? (
-                <>
-                  <Typography variant="h5" component="h3">
-                    Environments
-                  </Typography>
-                  <Environments
-                    environments={selectedVersion.environments}
-                    handleEnvironmentChange={handleEnvironmentChange}
-                  />
-                </>
-              ) : null}
-            </Paper>
-          </Fade>
-          <Fade
-            in={!!selectedVersion?.extensions?.length}
-            exit={false}
-            unmountOnExit
-          >
-            {typeof selectedVersion === 'object' &&
-            selectedVersion.extensions.length ? (
-              <Paper variant="outlined" className="image-item-group-column">
-                <Typography variant="h5" component="h3">
-                  Extensions
-                </Typography>
-                <div className="image-item-group-row">
-                  <ExtensionsDropdown
-                    id="extension-system"
-                    name="System Extensions"
-                    extensions={selectedVersion.extensions.filter(
-                      (extension) => !extension.special,
-                    )}
-                    handleExtensionChange={handleExtensionChange}
-                  />
-                  <ExtensionsDropdown
-                    id="extension-special"
-                    name={`${
-                      image.name.charAt(0).toUpperCase() + image.name.slice(1)
-                    } Extensions`}
-                    extensions={selectedVersion.extensions.filter(
-                      (extension) => extension.special,
-                    )}
-                    handleExtensionChange={handleExtensionChange}
-                  />
-                </div>
+                      <InputLabel htmlFor="restartTypes">
+                        Restart Type
+                      </InputLabel>
+                      <Select
+                        labelId="restartTypes"
+                        id="restartTypes"
+                        value={
+                          typeof selectedVersion?.restartType === 'undefined'
+                            ? restartTypes?.[0].id
+                            : selectedVersion?.restartType.id
+                        }
+                        onChange={handleRestartTypeChange}
+                        required
+                      >
+                        {restartTypes.map((restartType: RestartType) => {
+                          return (
+                            <MenuItem
+                              value={restartType.id}
+                              key={restartType.id}
+                            >
+                              {restartType.type}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  </>
+                ) : null}
               </Paper>
-            ) : (
-              <></>
-            )}
-          </Fade>
-          <Fade
-            in={!!selectedVersion?.ports?.length}
-            exit={false}
-            unmountOnExit
-          >
-            <Paper variant="outlined" className="image-item-group-column">
-              {selectedVersion?.ports?.length ? (
-                <>
-                  <Typography variant="h5" component="h3">
-                    Ports
-                  </Typography>
-                  <Ports
-                    ports={selectedVersion.ports}
-                    handlePortChange={handlePortChange}
-                  />
-                </>
-              ) : null}
-            </Paper>
-          </Fade>
+            </Fade>
 
-          <Fade
-            in={!!selectedVersion?.volumes?.length}
-            exit={false}
-            unmountOnExit
-          >
-            <Paper variant="outlined" className="image-item-group-column">
-              {selectedVersion?.volumes?.length ? (
-                <>
-                  <Typography variant="h5" component="h3">
-                    Volumes
-                  </Typography>
-                  <Volumes
-                    volumes={selectedVersion.volumes}
-                    handleVolumeChange={handleVolumeChange}
+            <Fade
+              in={
+                typeof selectedVersion === 'object' &&
+                selectedImages?.length > 1
+              }
+              exit={false}
+              unmountOnExit
+            >
+              <Paper variant="outlined" className={classes.row}>
+                {typeof selectedVersion === 'object' &&
+                selectedImages?.length > 1 ? (
+                  <DependenciesDropDown
+                    currentImage={image}
+                    selectedImages={selectedImages}
+                    handleDependenciesChange={handleDependenciesChange}
                   />
-                </>
-              ) : null}
-            </Paper>
-          </Fade>
-        </>
-      ) : (
-        <>
-          {!image.error ? (
-            <CircularProgress style={{ margin: 'auto' }} />
-          ) : (
-            <>
-              <Alert severity="error">{image.error}</Alert>
-              <IconButton onClick={() => handleRefreshDetail(image)}>
-                <Refresh />
-              </IconButton>
-            </>
-          )}
-        </>
-      )}
-    </Paper>
+                ) : null}
+              </Paper>
+            </Fade>
+            <Fade
+              in={!!selectedVersion?.environments?.length}
+              exit={false}
+              unmountOnExit
+            >
+              <Paper variant="outlined" className={classes.column}>
+                {typeof selectedVersion === 'object' &&
+                selectedVersion.environments?.length ? (
+                  <>
+                    <Typography variant="h5" component="h3">
+                      Environments
+                    </Typography>
+                    <Environments
+                      environments={selectedVersion.environments}
+                      handleEnvironmentChange={handleEnvironmentChange}
+                    />
+                  </>
+                ) : null}
+              </Paper>
+            </Fade>
+            <Fade
+              in={!!selectedVersion?.extensions?.length}
+              exit={false}
+              unmountOnExit
+            >
+              {typeof selectedVersion === 'object' &&
+              selectedVersion.extensions?.length ? (
+                <Paper variant="outlined" className={classes.column}>
+                  <Typography variant="h5" component="h3">
+                    Extensions
+                  </Typography>
+                  <div className={classes.row}>
+                    <ExtensionsDropdown
+                      id="extension-system"
+                      name="System Extensions"
+                      extensions={selectedVersion.extensions.filter(
+                        (extension) => !extension.special,
+                      )}
+                      handleExtensionChange={handleExtensionChange}
+                    />
+                    <ExtensionsDropdown
+                      id="extension-special"
+                      name={`${
+                        image.name.charAt(0).toUpperCase() + image.name.slice(1)
+                      } Extensions`}
+                      extensions={selectedVersion.extensions.filter(
+                        (extension) => extension.special,
+                      )}
+                      handleExtensionChange={handleExtensionChange}
+                    />
+                  </div>
+                </Paper>
+              ) : (
+                <></>
+              )}
+            </Fade>
+            <Fade
+              in={!!selectedVersion?.ports?.length}
+              exit={false}
+              unmountOnExit
+            >
+              <Paper variant="outlined" className={classes.column}>
+                {selectedVersion?.ports?.length ? (
+                  <div className={classes.column}>
+                    <Typography variant="h5" component="h3">
+                      Ports
+                    </Typography>
+                    <Ports
+                      ports={selectedVersion.ports}
+                      handlePortChange={handlePortChange}
+                    />
+                  </div>
+                ) : null}
+              </Paper>
+            </Fade>
+
+            <Fade
+              in={!!selectedVersion?.volumes?.length}
+              exit={false}
+              unmountOnExit
+            >
+              <Paper variant="outlined" className={classes.column}>
+                {selectedVersion?.volumes?.length ? (
+                  <>
+                    <Typography variant="h5" component="h3">
+                      Volumes
+                    </Typography>
+                    <Volumes
+                      volumes={selectedVersion.volumes}
+                      handleVolumeChange={handleVolumeChange}
+                    />
+                  </>
+                ) : null}
+              </Paper>
+            </Fade>
+          </>
+        ) : (
+          <>
+            {!image.error ? (
+              <CircularProgress style={{ margin: 'auto' }} />
+            ) : (
+              <>
+                <Alert severity="error">{image.error}</Alert>
+                <div>
+                  <IconButton onClick={() => handleRefreshDetail(image)}>
+                    <Refresh />
+                  </IconButton>
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </Paper>
+    </>
   );
 };
 

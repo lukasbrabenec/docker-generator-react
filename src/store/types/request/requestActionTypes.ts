@@ -1,10 +1,12 @@
 import {
-  GenerateEnvironment,
-  GenerateExtension,
-  GeneratePort,
-  GenerateVolume,
-} from './generateTypes';
-import { RestartType } from '../image/imageTypes';
+  Environment,
+  Extension,
+  Image,
+  ImageVersion,
+  Port,
+  RestartType,
+  Volume,
+} from '../image/imageTypes';
 
 export const CHANGE_PROJECT_NAME = 'CHANGE_PROJECT_NAME';
 export const UPDATE_IMAGE_NAME = 'UPDATE_IMAGE_NAME';
@@ -16,6 +18,8 @@ export const CHANGE_ENVIRONMENTS = 'CHANGE_ENVIRONMENTS';
 export const CHANGE_PORTS = 'CHANGE_PORTS';
 export const CHANGE_VOLUMES = 'CHANGE_VOLUMES';
 export const CHANGE_RESTART_TYPE = 'CHANGE_RESTART_TYPE';
+export const CHANGE_DEPENDENCIES = 'CHANGE_DEPENDENCIES';
+export const GENERATE_ERROR = 'GENERATE_ERROR';
 
 interface ChangeProjectNameAction {
   type: typeof CHANGE_PROJECT_NAME;
@@ -24,57 +28,69 @@ interface ChangeProjectNameAction {
 
 interface ChangeDockerVersionAction {
   type: typeof CHANGE_DOCKER_VERSION;
-  versionId: number;
+  versionID: number;
 }
 
 interface UpdateImageName {
   type: typeof UPDATE_IMAGE_NAME;
-  imageVersionId: number;
+  imageVersionID: number;
   imageName: string;
 }
 
 interface UpdateImageVersionAction {
   type: typeof UPDATE_IMAGE_VERSION;
-  newImageVersionId: number;
-  previousImageVersionId: number | undefined;
+  newImageVersion: ImageVersion;
+  previousImageVersionID: number | undefined;
 }
 
 interface RemoveImageVersionAction {
   type: typeof REMOVE_IMAGE_VERSION;
-  imageVersionId: number;
+  imageVersion: ImageVersion | undefined;
+  image: Image;
 }
 
 interface ChangeExtensionsAction {
   type: typeof CHANGE_EXTENSIONS;
-  imageVersionId: number;
-  extensions: GenerateExtension[];
+  imageVersionID: number;
+  extensions: Extension[];
 }
 
 interface ChangeEnvironmentsAction {
   type: typeof CHANGE_ENVIRONMENTS;
-  imageVersionId: number;
-  environments: GenerateEnvironment[];
+  imageVersionID: number;
+  environments: Environment[];
 }
 
 interface ChangePortsAction {
   type: typeof CHANGE_PORTS;
-  imageVersionId: number;
-  ports: GeneratePort[];
+  imageVersionID: number;
+  ports: Port[];
 }
 
 interface ChangeVolumesAction {
   type: typeof CHANGE_VOLUMES;
-  imageVersionId: number;
-  volumes: GenerateVolume[];
+  imageVersionID: number;
+  volumes: Volume[];
 }
 
 interface ChangeRestartTypeAction {
   type: typeof CHANGE_RESTART_TYPE;
-  imageVersionId: number;
+  imageVersionID: number;
   restartType: RestartType;
 }
 
-export type GenerateActionTypes =
+interface ChangeDependenciesAction {
+  type: typeof CHANGE_DEPENDENCIES;
+  imageVersion: ImageVersion;
+  dependencies: Image[];
+}
+
+interface GenerateErrorAction {
+  type: typeof GENERATE_ERROR;
+  error: string;
+}
+
+export type RequestActionTypes =
   | ChangeProjectNameAction
   | UpdateImageName
   | ChangeDockerVersionAction
@@ -84,4 +100,6 @@ export type GenerateActionTypes =
   | ChangeEnvironmentsAction
   | ChangePortsAction
   | ChangeVolumesAction
-  | ChangeRestartTypeAction;
+  | ChangeRestartTypeAction
+  | ChangeDependenciesAction
+  | GenerateErrorAction;

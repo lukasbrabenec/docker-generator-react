@@ -1,4 +1,4 @@
-import { GenerateState } from '../generate/generateTypes';
+import { GenerateState } from '../request/requestTypes';
 import { ImagesState } from '../image/imageTypes';
 import { VersionState } from '../version/versionTypes';
 

@@ -7,16 +7,18 @@ import {
   Paper,
   Select,
 } from '@material-ui/core';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-  changeEnvironmentsInRequest,
-  changeExtensionsInRequest,
-  changePortsInRequest,
+  changeEnvironments,
+  changeExtensions,
+  changePorts,
   removeImageVersionInRequest,
-  updateImageVersionInRequest,
-  changeVolumesInRequest,
-  changeRestartTypeInRequest,
-  updateImageNameInRequest,
-} from '../store/actions/generateActions';
+  updateImageVersion,
+  changeVolumes,
+  changeRestartType,
+  updateImageName,
+  changeDependencies,
+} from '../store/actions/requestActions';
 import {
   Environment,
   Extension,
@@ -35,65 +37,108 @@ interface IImageListProps {
   restartTypes: RestartType[];
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    column: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '49%',
+      [theme.breakpoints.down('sm')]: {
+        alignItems: 'center',
+        width: '100%',
+      },
+    },
+  }),
+);
+
 const ImageList = ({ images, restartTypes }: IImageListProps) => {
-  const [availableImages, setAvailableImages] = useState<Image[] | undefined>(
-    images,
-  );
-  const [selectedImages, setSelectedImages] = useState<Image[] | undefined>(
-    undefined,
-  );
+  const [selectedImages, setSelectedImages] = useState<Image[]>([]);
 
   const dispatch = useDispatch();
-  const handleUpdateImageVersionInRequest = useCallback(
-    (newImageVersionId: number, previousImageVersionId: number | undefined) =>
-      dispatch(
-        updateImageVersionInRequest(newImageVersionId, previousImageVersionId),
-      ),
+  const handleUpdateImageVersion = useCallback(
+    (
+      newImageVersion: ImageVersion,
+      previousImageVersionID: number | undefined,
+    ) => dispatch(updateImageVersion(newImageVersion, previousImageVersionID)),
     [dispatch],
   );
-  const handleUpdateImageNameInRequest = useCallback(
-    (imageVersionId: number, imageName: string) =>
-      dispatch(updateImageNameInRequest(imageVersionId, imageName)),
+  const handleUpdateImageName = useCallback(
+    (imageVersionID: number, imageName: string) =>
+      dispatch(updateImageName(imageVersionID, imageName)),
     [dispatch],
   );
-  const handleChangeExtensionsInRequest = useCallback(
-    (imageVersionId: number, extensions: Extension[]) =>
-      dispatch(changeExtensionsInRequest(imageVersionId, extensions)),
+  const handleChangeExtensions = useCallback(
+    (imageVersionID: number, extensions: Extension[]) =>
+      dispatch(changeExtensions(imageVersionID, extensions)),
     [dispatch],
   );
-  const handleChangeEnvironmentsInRequest = useCallback(
-    (imageVersionId: number, environments: Environment[]) =>
-      dispatch(changeEnvironmentsInRequest(imageVersionId, environments)),
+  const handleChangeEnvironments = useCallback(
+    (imageVersionID: number, environments: Environment[]) =>
+      dispatch(changeEnvironments(imageVersionID, environments)),
     [dispatch],
   );
-  const handleChangePortsInRequest = useCallback(
-    (imageVersionId: number, ports: Port[]) =>
-      dispatch(changePortsInRequest(imageVersionId, ports)),
+  const handleChangePorts = useCallback(
+    (imageVersionID: number, ports: Port[]) =>
+      dispatch(changePorts(imageVersionID, ports)),
     [dispatch],
   );
-  const handleChangeVolumesInRequest = useCallback(
-    (imageVersionId: number, volumes: Volume[]) =>
-      dispatch(changeVolumesInRequest(imageVersionId, volumes)),
+  const handleChangeVolumes = useCallback(
+    (imageVersionID: number, volumes: Volume[]) =>
+      dispatch(changeVolumes(imageVersionID, volumes)),
     [dispatch],
   );
-  const handleChangeRestartTypeInRequest = useCallback(
-    (imageVersionId: number, restartType: RestartType) =>
-      dispatch(changeRestartTypeInRequest(imageVersionId, restartType)),
+  const handleChangeRestartType = useCallback(
+    (imageVersionID: number, restartType: RestartType) =>
+      dispatch(changeRestartType(imageVersionID, restartType)),
     [dispatch],
   );
-
-  const removeFromAvailableImages = (image: Image) => {
-    setAvailableImages(
-      availableImages?.filter(
-        (availableImage: Image) => availableImage.id !== image.id,
-      ),
-    );
+  const handleChangeDependencies = (
+    imageVersion: ImageVersion,
+    image: Image,
+    dependencies: Image[],
+  ) => {
+    dispatch(changeDependencies(imageVersion, dependencies));
+    const newSelectedImages = selectedImages.map((selectedImage: Image) => {
+      const dependentImage = dependencies
+        ? dependencies.find(
+            (dependency: Image) => selectedImage.id === dependency.id,
+          )
+        : undefined;
+      if (dependentImage !== undefined) {
+        const selectedImageHaveCurrentDependency = selectedImage.dependencies
+          ? selectedImage.dependencies.find(
+              (dependencyImage: Image) => dependencyImage.id === image.id,
+            ) !== undefined
+          : false;
+        // already have that dependency
+        if (!selectedImageHaveCurrentDependency) {
+          return {
+            ...selectedImage,
+            dependencies: selectedImage.dependencies
+              ? [...selectedImage.dependencies, image]
+              : [image],
+          };
+        }
+        return selectedImage;
+      }
+      // current dependency haven't come -- remove it
+      const filteredDependencies = selectedImage.dependencies
+        ? selectedImage.dependencies.filter(
+            (dependencyImage: Image) => dependencyImage.id !== image.id,
+          )
+        : undefined;
+      if (filteredDependencies !== undefined) {
+        return { ...selectedImage, dependencies: filteredDependencies };
+      }
+      return selectedImage;
+    });
+    setSelectedImages(newSelectedImages);
   };
 
   const handleSelectImage = (e: React.ChangeEvent<{}>) => {
-    const selectedImageId = parseInt((e.target as HTMLInputElement).value, 10);
-    const newSelectedImage = availableImages!.find((image: Image) => {
-      return image.id === selectedImageId;
+    const selectedImageID = parseInt((e.target as HTMLInputElement).value, 10);
+    const newSelectedImage = images.find((image: Image) => {
+      return image.id === selectedImageID;
     });
     if (newSelectedImage) {
       if (newSelectedImage.imageVersions === undefined) {
@@ -104,7 +149,6 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
         ? [...selectedImages, newSelectedImage]
         : [newSelectedImage];
       setSelectedImages(newSelected);
-      removeFromAvailableImages(newSelectedImage);
     }
   };
 
@@ -112,75 +156,102 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
     image: Image,
     imageVersion: ImageVersion | undefined,
   ) => {
-    setAvailableImages(availableImages ? [...availableImages, image] : [image]);
+    dispatch(removeImageVersionInRequest(imageVersion, image));
     setSelectedImages(
       selectedImages?.filter(
         (selectedImage: Image) => selectedImage.id !== image.id,
       ),
     );
-    if (imageVersion !== undefined) {
-      dispatch(removeImageVersionInRequest(imageVersion.id));
-    }
   };
 
-  const availableImageItems = availableImages
-    ? availableImages.map((image: Image) => {
-        return (
-          <MenuItem key={image.id} value={image.id}>
-            {image.name}
-          </MenuItem>
-        );
-      })
-    : undefined;
+  // filter out selected images and map for select
+  const availableImageItems = images
+    .filter(
+      (image: Image) =>
+        selectedImages?.filter(
+          (selectedImage: Image) => selectedImage.id === image.id,
+        ).length === 0,
+    )
+    .map((image: Image) => {
+      return (
+        <MenuItem key={image.id} value={image.id}>
+          {image.name}
+        </MenuItem>
+      );
+    });
 
+  const classes = useStyles();
   return (
-    <div className="images">
-      {selectedImages ? (
-        selectedImages.map((image) => {
-          return (
-            <ImageWrapper
-              image={image}
-              restartTypes={restartTypes}
-              key={image.id}
-              updateImageVersionInRequest={handleUpdateImageVersionInRequest}
-              updateImageNameInRequest={handleUpdateImageNameInRequest}
-              handleRemoveImage={handleRemoveImage}
-              changeExtensionsInRequest={handleChangeExtensionsInRequest}
-              changeEnvironmentsInRequest={handleChangeEnvironmentsInRequest}
-              changePortsInRequest={handleChangePortsInRequest}
-              changeVolumesInRequest={handleChangeVolumesInRequest}
-              changeRestartTypeInRequest={handleChangeRestartTypeInRequest}
-            />
-          );
-        })
-      ) : (
-        <></>
-      )}
-      {availableImages && availableImages.length ? (
-        <>
-          <Paper variant="outlined" className="image-item-group-row">
+    <>
+      {images && images.length ? (
+        <div
+          style={{
+            width: '30%',
+            alignSelf: 'center',
+          }}
+        >
+          <Paper
+            variant="outlined"
+            style={{ borderColor: 'rgba(0, 0, 0, 0.25)', padding: '10px' }}
+          >
             <FormControl
-              style={{ width: 500 }}
               size="small"
-              focused={false}
+              fullWidth
               required={!selectedImages?.length}
             >
-              <InputLabel htmlFor="images">Add Image</InputLabel>
+              <InputLabel htmlFor="images">
+                {availableImageItems.length ? 'Select Images' : 'No Images'}
+              </InputLabel>
               <Select
                 labelId="images"
                 id="images"
                 value=""
                 onChange={handleSelectImage}
+                disabled={!availableImageItems.length}
+                autoFocus={false}
               >
                 {availableImageItems}
               </Select>
             </FormControl>
           </Paper>
-        </>
+        </div>
       ) : (
         <></>
       )}
-    </div>
+      <div
+        className="images"
+        style={
+          selectedImages?.length === 1
+            ? { flexDirection: 'column', alignItems: 'center' }
+            : {}
+        }
+      >
+        {selectedImages ? (
+          selectedImages.map((image: Image) => {
+            return (
+              <div className={classes.column} key={`${image.id}-image`}>
+                <ImageWrapper
+                  image={image}
+                  selectedImages={selectedImages}
+                  restartTypes={restartTypes}
+                  updateImageVersion={handleUpdateImageVersion}
+                  updateImageName={handleUpdateImageName}
+                  handleRemoveImage={handleRemoveImage}
+                  changeExtensions={handleChangeExtensions}
+                  changeEnvironments={handleChangeEnvironments}
+                  changePorts={handleChangePorts}
+                  changeVolumes={handleChangeVolumes}
+                  changeRestartType={handleChangeRestartType}
+                  changeDependencies={handleChangeDependencies}
+                />
+              </div>
+            );
+          })
+        ) : (
+          <></>
+        )}
+      </div>
+    </>
   );
 };
 

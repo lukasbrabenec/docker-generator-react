@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
 import imageReducer from './imageReducer';
-import generateReducer from './generateReducer';
+import requestReducer from './requestReducer';
 import versionReducer from './versionReducer';
 
 const rootReducer = combineReducers({
   image: imageReducer,
-  generate: generateReducer,
+  request: requestReducer,
   version: versionReducer,
 });
 

@@ -5,6 +5,8 @@ import { RootStateOrAny } from 'react-redux';
 import {
   Environment,
   Extension,
+  Image,
+  ImageVersion,
   Port,
   RestartType,
   Volume,
@@ -18,86 +20,120 @@ export const changeProjectName = (
   };
 };
 
-export const updateImageNameInRequest = (
-  imageVersionId: number,
+export const updateImageName = (
+  imageVersionID: number,
   imageName: string,
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'UPDATE_IMAGE_NAME', imageVersionId, imageName });
+    dispatch({
+      type: 'UPDATE_IMAGE_NAME',
+      imageVersionID,
+      imageName,
+    });
   };
 };
 
 export const changeDockerVersion = (
-  versionId: number,
+  versionID: number,
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_DOCKER_VERSION', versionId });
+    dispatch({ type: 'CHANGE_DOCKER_VERSION', versionID });
   };
 };
 
-export const updateImageVersionInRequest = (
-  newImageVersionId: number,
-  previousImageVersionId: number | undefined,
+export const updateImageVersion = (
+  newImageVersion: ImageVersion,
+  previousImageVersionID: number | undefined,
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
     dispatch({
       type: 'UPDATE_IMAGE_VERSION',
-      newImageVersionId,
-      previousImageVersionId,
+      newImageVersion,
+      previousImageVersionID,
     });
   };
 };
 
 export const removeImageVersionInRequest = (
-  imageVersionId: number,
+  imageVersion: ImageVersion | undefined,
+  image: Image,
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'REMOVE_IMAGE_VERSION', imageVersionId });
+    dispatch({ type: 'REMOVE_IMAGE_VERSION', imageVersion, image });
   };
 };
 
-export const changeExtensionsInRequest = (
-  imageVersionId: number,
+export const changeExtensions = (
+  imageVersionID: number,
   extensions: Extension[],
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_EXTENSIONS', imageVersionId, extensions });
+    dispatch({
+      type: 'CHANGE_EXTENSIONS',
+      imageVersionID,
+      extensions,
+    });
   };
 };
 
-export const changeEnvironmentsInRequest = (
-  imageVersionId: number,
+export const changeEnvironments = (
+  imageVersionID: number,
   environments: Environment[],
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_ENVIRONMENTS', imageVersionId, environments });
+    dispatch({
+      type: 'CHANGE_ENVIRONMENTS',
+      imageVersionID,
+      environments,
+    });
   };
 };
 
-export const changePortsInRequest = (
-  imageVersionId: number,
+export const changePorts = (
+  imageVersionID: number,
   ports: Port[],
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_PORTS', imageVersionId, ports });
+    dispatch({ type: 'CHANGE_PORTS', imageVersionID, ports });
   };
 };
 
-export const changeVolumesInRequest = (
-  imageVersionId: number,
+export const changeVolumes = (
+  imageVersionID: number,
   volumes: Volume[],
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_VOLUMES', imageVersionId, volumes });
+    dispatch({
+      type: 'CHANGE_VOLUMES',
+      imageVersionID,
+      volumes,
+    });
   };
 };
 
-export const changeRestartTypeInRequest = (
-  imageVersionId: number,
+export const changeRestartType = (
+  imageVersionID: number,
   restartType: RestartType,
 ): ThunkAction<void, {}, {}, Action<string>> => {
   return (dispatch) => {
-    dispatch({ type: 'CHANGE_RESTART_TYPE', imageVersionId, restartType });
+    dispatch({
+      type: 'CHANGE_RESTART_TYPE',
+      imageVersionID,
+      restartType,
+    });
+  };
+};
+
+export const changeDependencies = (
+  imageVersion: ImageVersion,
+  dependencies: Image[],
+): ThunkAction<void, {}, {}, Action<string>> => {
+  return (dispatch) => {
+    dispatch({
+      type: 'CHANGE_DEPENDENCIES',
+      imageVersion,
+      dependencies,
+    });
   };
 };
 
@@ -107,9 +143,9 @@ export const generate = (): ThunkAction<
   {},
   Action<string>
 > => {
-  return (_dispatch, getState) => {
+  return (dispatch, getState) => {
     const request = {
-      generate: getState().generate,
+      generate: getState().request,
     };
     axios
       .post('http://localhost:8080/api/v1/generate', request, {
@@ -125,6 +161,10 @@ export const generate = (): ThunkAction<
       })
       .catch((err) => {
         console.log(err);
+        dispatch({
+          type: 'GENERATE_ERROR',
+          error: 'Generation failed!',
+        });
       });
   };
 };

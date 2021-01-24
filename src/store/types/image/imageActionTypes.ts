@@ -23,7 +23,7 @@ interface InitImagesErrorAction {
 
 interface InitImageDetailSuccessAction {
   type: typeof INIT_IMAGE_VERSIONS_SUCCESS;
-  imageId: number;
+  image: Image;
   imageVersions: ImageVersion[];
   isLoaded: boolean;
 }
@@ -31,7 +31,7 @@ interface InitImageDetailSuccessAction {
 interface InitImageDetailErrorAction {
   type: typeof INIT_IMAGE_VERSIONS_ERROR;
   isLoaded: boolean;
-  imageId: number;
+  imageID: number;
   error: string;
 }
 

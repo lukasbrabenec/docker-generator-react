@@ -28,14 +28,14 @@ export const initImageDetail = (
       .then((res) => {
         dispatch({
           type: 'INIT_IMAGE_VERSIONS_SUCCESS',
-          imageId: image.id,
+          image,
           imageVersions: res.data.data[0].imageVersions,
         });
       })
       .catch(() => {
         dispatch({
           type: 'INIT_IMAGE_VERSIONS_ERROR',
-          imageId: image.id,
+          imageID: image.id,
           error: `Loading ${image.name} detail failed!`,
         });
       });

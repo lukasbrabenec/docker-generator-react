@@ -27,7 +27,7 @@ const ImageVersionSelect = ({
     : null;
 
   return versionItems ? (
-    <FormControl style={{ width: 500 }} size="small" required>
+    <FormControl style={{ width: '50%' }} size="small" required>
       <InputLabel htmlFor="versions">Version</InputLabel>
       <Select
         labelId="versions"

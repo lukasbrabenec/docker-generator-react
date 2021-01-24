@@ -4,22 +4,25 @@ export interface Image {
   code: string;
   imageVersions: ImageVersion[] | undefined;
   error: string | undefined;
+  dependencies: Image[];
 }
 
 export interface ImageVersion {
   id: number;
-  version: string;
-  extensions: Extension[];
-  environments: Environment[];
-  volumes: Volume[];
-  ports: Port[];
+  imageName?: string;
+  version?: string;
+  extensions?: Extension[];
+  environments?: Environment[];
+  volumes?: Volume[];
+  ports?: Port[];
   restartType?: RestartType;
+  dependsOn?: number[];
 }
 
 export interface Extension {
   id: number;
   name: string;
-  special: boolean;
+  special?: boolean;
 }
 
 export interface Environment {
@@ -28,6 +31,7 @@ export interface Environment {
   defaultValue?: string;
   required?: boolean;
   hidden?: boolean;
+  value?: string;
 }
 
 export interface Volume {
@@ -42,6 +46,7 @@ export interface Port {
   inward: number;
   outward: number;
   exposedToHost?: boolean | undefined;
+  exposedToContainers?: boolean | undefined;
 }
 
 export interface RestartType {

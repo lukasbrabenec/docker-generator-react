@@ -33,7 +33,7 @@ const ExtensionsDropdown = ({
 
   return (
     <Autocomplete
-      style={{ width: 500 }}
+      style={{ width: '100%' }}
       multiple
       id={id}
       disabled={!dropDownOptions.length}

@@ -11,7 +11,7 @@ import {
   changeDockerVersion,
   changeProjectName,
   generate,
-} from '../store/actions/generateActions';
+} from '../store/actions/requestActions';
 import { initImages, initRestartTypes } from '../store/actions/imageActions';
 import { initVersions } from '../store/actions/versionActions';
 import DockerEngineVersion from './DockerEngineVersion';
@@ -35,6 +35,9 @@ const Form = () => {
   const versions = useSelector((state: RootState) => state.version.versions);
   const restartTypes = useSelector(
     (state: RootState) => state.image.restartTypes,
+  );
+  const generationError = useSelector(
+    (state: RootState) => state.generate?.errors,
   );
 
   const dispatch = useDispatch();
@@ -62,7 +65,7 @@ const Form = () => {
   };
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       {imagesLoaded && versionsLoaded ? (
         <form onSubmit={handleSubmit} className="form">
           <TextField
@@ -93,7 +96,7 @@ const Form = () => {
         </form>
       ) : (
         <>
-          {!imagesError || versionsError ? (
+          {!imagesError && !versionsError ? (
             <CircularProgress style={{ margin: 'auto' }} />
           ) : (
             <>
@@ -105,6 +108,9 @@ const Form = () => {
               ) : null}
             </>
           )}
+          {generationError ? (
+            <Alert severity="error">{generationError}</Alert>
+          ) : null}
         </>
       )}
     </Container>
