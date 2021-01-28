@@ -4,24 +4,29 @@
         "es2021": true
     },
     "extends": [
-        "plugin:react/recommended",
-        "airbnb",
+        "airbnb-typescript-prettier",
         "plugin:@typescript-eslint/eslint-recommended",
         "prettier",
+        "prettier/react",
         "prettier/@typescript-eslint",
-        "prettier/react"
+        "plugin:react/recommended"
     ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         },
-        "ecmaVersion": 12,
-        "sourceType": "module"
+        "ecmaVersion": 2021,
+        "sourceType": "module",
+        "project": ["./tsconfig.json"]
     },
     "plugins": [
         "react",
-        "@typescript-eslint",
+        "@typescript-eslint/eslint-plugin",
         "react-hooks",
         "prettier"
     ],
@@ -49,10 +54,8 @@
         "prettier/prettier": "warn",
         "no-use-before-define": [0],
         "@typescript-eslint/no-use-before-define": [1],
+        "@typescript-eslint/ban-types": "off",
         "spaced-comment": ["warn"],
-        "no-unused-vars": ["warn"],
-        "@typescript-eslint/no-unused-vars": ["warn", { "args": "none" }],
-        "@typescript-eslint/no-unused-vars-experimental": [0],
         "react/jsx-props-no-spreading": [0]
     },
     "settings": {

@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { GetApp } from '@material-ui/icons';
-import { Alert } from '@material-ui/lab';
 import ImageList from './ImageList';
 import {
   changeDockerVersion,
@@ -17,27 +16,20 @@ import { initVersions } from '../store/actions/versionActions';
 import DockerEngineVersion from './DockerEngineVersion';
 import { RootState } from '../store/types/root/rootState';
 
-const Form = () => {
+const Form = (): JSX.Element => {
   const [selectedVersion, setSelectedVersion] = useState<number | undefined>(
     undefined,
   );
   const [projectName, setProjectName] = useState<string>('');
 
-  const imagesLoaded = useSelector((state: RootState) => state.image.isLoaded);
   const imagesError = useSelector((state: RootState) => state.image.error);
   const images = useSelector((state: RootState) => state.image.images);
-  const versionsLoaded = useSelector(
-    (state: RootState) => state.version.isLoaded,
-  );
   const versionsError = useSelector(
     (state: RootState) => state.version.versionsError,
   );
   const versions = useSelector((state: RootState) => state.version.versions);
   const restartTypes = useSelector(
     (state: RootState) => state.image.restartTypes,
-  );
-  const generationError = useSelector(
-    (state: RootState) => state.generate?.errors,
   );
 
   const dispatch = useDispatch();
@@ -66,7 +58,7 @@ const Form = () => {
 
   return (
     <Container maxWidth="xl">
-      {imagesLoaded && versionsLoaded ? (
+      {images.length && versions.length ? (
         <form onSubmit={handleSubmit} className="form">
           <TextField
             className="general-option"
@@ -75,10 +67,10 @@ const Form = () => {
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleProjectNameChange(e)
             }
+            style={{ minWidth: '350px', maxWidth: '500px' }}
             required
           />
           <DockerEngineVersion
-            versionsLoaded={versionsLoaded}
             versions={versions}
             selectedVersion={selectedVersion}
             handleVersionChange={handleVersionChange}
@@ -98,18 +90,6 @@ const Form = () => {
         <>
           {!imagesError && !versionsError ? (
             <CircularProgress style={{ margin: 'auto' }} />
-          ) : (
-            <>
-              {typeof imagesError === 'string' ? (
-                <Alert severity="error">{imagesError}</Alert>
-              ) : null}
-              {typeof versionsError === 'string' ? (
-                <Alert severity="error">{versionsError}</Alert>
-              ) : null}
-            </>
-          )}
-          {generationError ? (
-            <Alert severity="error">{generationError}</Alert>
           ) : null}
         </>
       )}

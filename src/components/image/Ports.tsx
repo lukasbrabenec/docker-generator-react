@@ -4,16 +4,23 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Divider,
   IconButton,
-  Input,
   InputAdornment,
-  InputLabel,
+  TextField,
+  Tooltip,
 } from '@material-ui/core';
-import { CheckCircleOutline, RadioButtonUnchecked } from '@material-ui/icons';
+import {
+  CheckCircleOutline,
+  Delete,
+  RadioButtonUnchecked,
+} from '@material-ui/icons';
+import Button from '@material-ui/core/Button';
 import { Port } from '../../store/types/image/imageTypes';
 
 interface IPortsProps {
-  ports: Port[];
+  ports: Port[] | undefined;
   handlePortChange: (ports: Port[]) => void;
+  handleAddPort: () => void;
+  handleRemovePort: (portID: number) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,46 +40,67 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Ports = ({ ports, handlePortChange }: IPortsProps) => {
+const Ports = ({
+  ports,
+  handlePortChange,
+  handleAddPort,
+  handleRemovePort,
+}: IPortsProps): JSX.Element => {
   const handlePortsStateChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     portID: number,
     type: string,
   ) => {
-    const changedValue = parseInt(e.target.value, 10);
-    if (!Number.isNaN(changedValue)) {
-      const changedPort: Port = {
-        ...ports.find((port: Port) => port.id === portID)!,
-        [type]: changedValue,
-      };
-      const otherPorts: Port[] = ports.filter(
-        (port: Port) => port.id !== portID,
-      );
-      const updatedPorts: Port[] = (otherPorts.length
-        ? [...otherPorts, changedPort]
-        : [changedPort]
-      ).sort((a: Port, b: Port) => a.id - b.id);
-      handlePortChange(updatedPorts);
+    if (ports !== undefined) {
+      const changedValue = !Number.isNaN(parseInt(e.target.value, 10))
+        ? parseInt(e.target.value, 10)
+        : '';
+      let changedPort = ports.find((port: Port) => port.id === portID);
+      if (changedPort !== undefined) {
+        changedPort = {
+          ...changedPort,
+          [type]: changedValue,
+        };
+        const otherPorts: Port[] = ports.filter(
+          (port: Port) => port.id !== portID,
+        );
+        const updatedPorts: Port[] = (otherPorts.length
+          ? [...otherPorts, changedPort]
+          : [changedPort]
+        ).sort((a: Port, b: Port) => a.id - b.id);
+        if (!Number.isNaN(changedValue)) {
+          handlePortChange(updatedPorts);
+        }
+      }
     }
   };
 
   const handleActiveStateChange = (type: string, portID: number) => {
-    const changedPort = ports.find((port: Port) => port.id === portID);
-    if (changedPort !== undefined) {
-      if (type === 'exposedToContainers') {
-        changedPort.exposedToContainers = !changedPort.exposedToContainers;
+    if (ports !== undefined) {
+      const changedPort = ports.find((port: Port) => port.id === portID);
+      if (changedPort !== undefined) {
+        if (type === 'exposedToContainers') {
+          // disabling exposedToContainers while exposedToHost is active is not allowed
+          if (
+            changedPort.exposedToHost === true &&
+            changedPort.exposedToContainers === true
+          )
+            return;
+          changedPort.exposedToContainers = !changedPort.exposedToContainers;
+        }
+        if (type === 'exposedToHost') {
+          changedPort.exposedToHost = !changedPort.exposedToHost;
+          changedPort.exposedToContainers = true;
+        }
+        const otherPorts: Port[] = ports.filter(
+          (port: Port) => port.id !== portID,
+        );
+        const updatedPorts: Port[] = (otherPorts.length
+          ? [...otherPorts, changedPort]
+          : [changedPort]
+        ).sort((a: Port, b: Port) => a.id - b.id);
+        handlePortChange(updatedPorts);
       }
-      if (type === 'exposedToHost') {
-        changedPort.exposedToHost = !changedPort.exposedToHost;
-      }
-      const otherPorts: Port[] = ports.filter(
-        (port: Port) => port.id !== portID,
-      );
-      const updatedPorts: Port[] = (otherPorts.length
-        ? [...otherPorts, changedPort]
-        : [changedPort]
-      ).sort((a: Port, b: Port) => a.id - b.id);
-      handlePortChange(updatedPorts);
     }
   };
 
@@ -80,13 +108,13 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
   return (
     <>
       {ports && ports.length
-        ? ports.map((port: Port, i: number) => {
+        ? ports.map((port: Port) => {
             return (
-              <React.Fragment key={`${port.id}-port`}>
+              <React.Fragment key={port.id}>
                 <div className={classes.row}>
                   <FormControl>
-                    <InputLabel>For other containers</InputLabel>
-                    <Input
+                    <TextField
+                      label="Other containers"
                       id={`${port.id}-outward`}
                       type="text"
                       value={
@@ -96,61 +124,114 @@ const Ports = ({ ports, handlePortChange }: IPortsProps) => {
                         handlePortsStateChange(e, port.id, 'outward')
                       }
                       disabled={!port.exposedToContainers}
-                      endAdornment={
-                        <InputAdornment position="end">
-                          <IconButton
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() =>
-                              handleActiveStateChange(
-                                'exposedToContainers',
-                                port.id,
-                              )
-                            }
-                          >
-                            {port.exposedToContainers ? (
-                              <CheckCircleOutline />
-                            ) : (
-                              <RadioButtonUnchecked />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
+                      error={port.exposedToContainers && port.outward === ''}
+                      helperText={
+                        port.exposedToContainers && port.outward === ''
+                          ? 'Only numbers are allowed'
+                          : null
                       }
+                      required={port.exposedToContainers && port.outward === ''}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <Tooltip
+                              title={
+                                !port.exposedToContainers
+                                  ? 'Expose to Other Containers'
+                                  : 'Disable'
+                              }
+                            >
+                              <IconButton
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() =>
+                                  handleActiveStateChange(
+                                    'exposedToContainers',
+                                    port.id,
+                                  )
+                                }
+                              >
+                                {port.exposedToContainers ? (
+                                  <CheckCircleOutline />
+                                ) : (
+                                  <RadioButtonUnchecked />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </FormControl>
                   <FormControl>
-                    <InputLabel>For host</InputLabel>
-                    <Input
+                    <TextField
+                      label="Host"
                       id={`${port.id}-inward`}
                       type="text"
                       value={port.exposedToHost ? port.inward : 'Disabled'}
                       disabled={!port.exposedToHost}
+                      error={port.exposedToHost && port.inward === ''}
+                      helperText={
+                        port.exposedToHost && port.inward === ''
+                          ? 'Only numbers are allowed'
+                          : null
+                      }
+                      required={port.exposedToHost && port.inward === ''}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handlePortsStateChange(e, port.id, 'inward')
                       }
-                      endAdornment={
-                        <InputAdornment position="end">
-                          <IconButton
-                            onMouseDown={(event) => event.preventDefault()}
-                            onClick={() =>
-                              handleActiveStateChange('exposedToHost', port.id)
-                            }
-                          >
-                            {port.exposedToHost ? (
-                              <CheckCircleOutline />
-                            ) : (
-                              <RadioButtonUnchecked />
-                            )}
-                          </IconButton>
-                        </InputAdornment>
-                      }
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <Tooltip
+                              title={
+                                !port.exposedToHost
+                                  ? 'Expose to Host'
+                                  : 'Disable'
+                              }
+                            >
+                              <IconButton
+                                onMouseDown={(event) => event.preventDefault()}
+                                onClick={() =>
+                                  handleActiveStateChange(
+                                    'exposedToHost',
+                                    port.id,
+                                  )
+                                }
+                              >
+                                {port.exposedToHost ? (
+                                  <CheckCircleOutline />
+                                ) : (
+                                  <RadioButtonUnchecked />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                          </InputAdornment>
+                        ),
+                      }}
                     />
                   </FormControl>
+                  <Tooltip title="Remove Ports">
+                    <IconButton
+                      onClick={() => handleRemovePort(port.id)}
+                      edge="end"
+                      style={{ maxHeight: '50px' }}
+                    >
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
                 </div>
-                {i !== ports.length - 1 ? <Divider light /> : null}
+                <Divider light />
               </React.Fragment>
             );
           })
         : null}
+      <Button
+        variant="outlined"
+        style={{ width: '30%', alignSelf: 'center' }}
+        onClick={handleAddPort}
+      >
+        Add Port
+      </Button>
     </>
   );
 };

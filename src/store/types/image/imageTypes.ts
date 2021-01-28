@@ -2,9 +2,15 @@ export interface Image {
   id: number;
   name: string;
   code: string;
+  group: ImageGroup;
   imageVersions: ImageVersion[] | undefined;
   error: string | undefined;
   dependencies: Image[];
+}
+
+export interface ImageGroup {
+  id: number;
+  name: string;
 }
 
 export interface ImageVersion {
@@ -38,13 +44,12 @@ export interface Volume {
   id: number;
   hostPath: string;
   containerPath: string;
-  active: boolean;
 }
 
 export interface Port {
   id: number;
-  inward: number;
-  outward: number;
+  inward: number | string;
+  outward: number | string;
   exposedToHost?: boolean | undefined;
   exposedToContainers?: boolean | undefined;
 }
@@ -55,8 +60,7 @@ export interface RestartType {
 }
 
 export interface ImagesState {
-  isLoaded: boolean;
   images: Image[];
   restartTypes: RestartType[];
-  error: string | boolean;
+  error: string | undefined;
 }

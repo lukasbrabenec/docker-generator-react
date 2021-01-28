@@ -10,7 +10,7 @@ interface IEnvironmentsProps {
 const Environments = ({
   environments,
   handleEnvironmentChange,
-}: IEnvironmentsProps) => {
+}: IEnvironmentsProps): JSX.Element => {
   const environmentList = environments.map((environment: Environment) => {
     return (
       <TextField

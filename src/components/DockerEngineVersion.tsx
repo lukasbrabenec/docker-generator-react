@@ -7,7 +7,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Version } from '../store/types/version/versionTypes';
 
 interface IDockerEngineReleaseProps {
-  versionsLoaded: boolean;
   versions: Version[];
   selectedVersion: number | undefined;
   handleVersionChange: (e: React.ChangeEvent<{}>) => void;
@@ -17,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     formControl: {
       margin: theme.spacing(1),
-      minWidth: 360,
+      minWidth: 350,
     },
     selectEmpty: {
       marginTop: theme.spacing(2),
@@ -26,11 +25,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const DockerEngineRelease = ({
-  versionsLoaded,
   versions,
   selectedVersion,
   handleVersionChange,
-}: IDockerEngineReleaseProps) => {
+}: IDockerEngineReleaseProps): JSX.Element => {
   const classes = useStyles();
 
   return (
@@ -45,15 +43,13 @@ const DockerEngineRelease = ({
           value={typeof selectedVersion === 'undefined' ? '' : selectedVersion}
           onChange={handleVersionChange}
         >
-          {versionsLoaded
-            ? versions.map((version: Version) => {
-                return (
-                  <MenuItem value={version.id} key={version.id}>
-                    {version.dockerEngineRelease}
-                  </MenuItem>
-                );
-              })
-            : null}
+          {versions.map((version: Version) => {
+            return (
+              <MenuItem value={version.id} key={version.id}>
+                {version.dockerEngineRelease}
+              </MenuItem>
+            );
+          })}
         </Select>
       </FormControl>
       <FormControl size="small" className={classes.formControl} required>
@@ -66,15 +62,13 @@ const DockerEngineRelease = ({
           value={typeof selectedVersion === 'undefined' ? '' : selectedVersion}
           onChange={handleVersionChange}
         >
-          {versionsLoaded
-            ? versions.map((version: Version) => {
-                return (
-                  <MenuItem value={version.id} key={version.id}>
-                    {version.composeVersion}
-                  </MenuItem>
-                );
-              })
-            : null}
+          {versions.map((version: Version) => {
+            return (
+              <MenuItem value={version.id} key={version.id}>
+                {version.composeVersion}
+              </MenuItem>
+            );
+          })}
         </Select>
       </FormControl>
     </div>

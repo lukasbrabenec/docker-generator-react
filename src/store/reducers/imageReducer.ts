@@ -1,11 +1,18 @@
 import { Image, ImagesState, ImageVersion } from '../types/image/imageTypes';
-import { ImageActionTypes } from '../types/image/imageActionTypes';
+import {
+  ImageActionTypes,
+  INIT_IMAGE_VERSIONS_ERROR,
+  INIT_IMAGE_VERSIONS_SUCCESS,
+  INIT_IMAGES_ERROR,
+  INIT_IMAGES_SUCCESS,
+  INIT_RESTART_TYPES_ERROR,
+  INIT_RESTART_TYPES_SUCCESS,
+} from '../types/image/imageActionTypes';
 
 const initImageState: ImagesState = {
-  isLoaded: false,
   images: [],
   restartTypes: [],
-  error: false,
+  error: undefined,
 };
 
 const imageReducer = (
@@ -20,19 +27,17 @@ const imageReducer = (
   };
 
   switch (action.type) {
-    case 'INIT_IMAGES_SUCCESS':
+    case INIT_IMAGES_SUCCESS:
       return {
         ...state,
-        isLoaded: true,
         images: action.images,
       };
-    case 'INIT_IMAGES_ERROR':
+    case INIT_IMAGES_ERROR:
       return {
         ...state,
-        isLoaded: false,
         error: action.imagesError,
       };
-    case 'INIT_IMAGE_VERSIONS_SUCCESS': {
+    case INIT_IMAGE_VERSIONS_SUCCESS: {
       const otherImages = getImageFromStateWithoutSelected(action.image.id);
       const selectedImage = getImageFromState(action.image.id);
       const imageVersions = action.imageVersions.map(
@@ -52,7 +57,7 @@ const imageReducer = (
       }
       return state;
     }
-    case 'INIT_IMAGE_VERSIONS_ERROR': {
+    case INIT_IMAGE_VERSIONS_ERROR: {
       const otherImages = getImageFromStateWithoutSelected(action.imageID);
       const selectedImage = getImageFromState(action.imageID);
       if (selectedImage !== undefined) {
@@ -64,16 +69,15 @@ const imageReducer = (
       }
       return state;
     }
-    case 'INIT_RESTART_TYPES_SUCCESS': {
+    case INIT_RESTART_TYPES_SUCCESS: {
       return {
         ...state,
         restartTypes: action.restartTypes,
       };
     }
-    case 'INIT_RESTART_TYPES_ERROR': {
+    case INIT_RESTART_TYPES_ERROR: {
       return {
         ...state,
-        isLoaded: false,
         error: action.restartTypesError,
       };
     }

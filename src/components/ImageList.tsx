@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import {
   FormControl,
   InputLabel,
+  ListSubheader,
   MenuItem,
   Paper,
   Select,
@@ -48,12 +49,15 @@ const useStyles = makeStyles((theme: Theme) =>
         width: '100%',
       },
     },
+    // disable clickable subheader till it's fixed
+    subheader: {
+      pointerEvents: 'none',
+    },
   }),
 );
 
-const ImageList = ({ images, restartTypes }: IImageListProps) => {
+const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
   const [selectedImages, setSelectedImages] = useState<Image[]>([]);
-
   const dispatch = useDispatch();
   const handleUpdateImageVersion = useCallback(
     (
@@ -164,29 +168,47 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
     );
   };
 
-  // filter out selected images and map for select
+  const classes = useStyles();
   const availableImageItems = images
+    // filter selected images
     .filter(
       (image: Image) =>
         selectedImages?.filter(
           (selectedImage: Image) => selectedImage.id === image.id,
         ).length === 0,
     )
-    .map((image: Image) => {
-      return (
+    // sort by group ID and image name
+    .sort((a: Image, b: Image) => {
+      if (a.group.id > b.group.id) {
+        return 1;
+      }
+      if (a.group.id === b.group.id) {
+        return a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
+      }
+      return -1;
+    })
+    // apply image groups
+    .map((image: Image, i: number, array: Image[]) => {
+      return [
+        (array[i - 1] !== undefined &&
+          image.group.id !== array[i - 1].group.id) ||
+        i === 0 ? (
+          <ListSubheader className={classes.subheader} disableSticky>
+            {image.group.name}
+          </ListSubheader>
+        ) : null,
         <MenuItem key={image.id} value={image.id}>
           {image.name}
-        </MenuItem>
-      );
+        </MenuItem>,
+      ];
     });
 
-  const classes = useStyles();
   return (
     <>
       {images && images.length ? (
         <div
           style={{
-            width: '30%',
+            minWidth: '450px',
             alignSelf: 'center',
           }}
         >
@@ -200,7 +222,7 @@ const ImageList = ({ images, restartTypes }: IImageListProps) => {
               required={!selectedImages?.length}
             >
               <InputLabel htmlFor="images">
-                {availableImageItems.length ? 'Select Images' : 'No Images'}
+                {availableImageItems.length ? 'Add Image' : 'No Images'}
               </InputLabel>
               <Select
                 labelId="images"

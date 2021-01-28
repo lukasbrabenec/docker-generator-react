@@ -1,8 +1,8 @@
 import { ImageVersion } from '../image/imageTypes';
 
-export interface GenerateState {
+export interface RequestState {
   projectName?: string | undefined;
-  dockerVersionID: number | null;
+  dockerVersionID: number | undefined;
   imageVersions: ImageVersion[];
-  errors: undefined | string;
+  error: undefined | string;
 }

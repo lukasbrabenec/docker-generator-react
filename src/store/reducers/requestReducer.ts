@@ -1,18 +1,32 @@
-import { RequestActionTypes } from '../types/request/requestActionTypes';
-import { GenerateState } from '../types/request/requestTypes';
+import {
+  CHANGE_DEPENDENCIES,
+  CHANGE_DOCKER_VERSION,
+  CHANGE_ENVIRONMENTS,
+  CHANGE_EXTENSIONS,
+  CHANGE_PORTS,
+  CHANGE_PROJECT_NAME,
+  CHANGE_RESTART_TYPE,
+  CHANGE_VOLUMES,
+  GENERATE_ERROR,
+  REMOVE_IMAGE_VERSION,
+  RequestActionTypes,
+  UPDATE_IMAGE_NAME,
+  UPDATE_IMAGE_VERSION,
+} from '../types/request/requestActionTypes';
+import { RequestState } from '../types/request/requestTypes';
 import { Extension, Image, ImageVersion } from '../types/image/imageTypes';
 
-const initState: GenerateState = {
-  dockerVersionID: null,
+const initState: RequestState = {
+  dockerVersionID: undefined,
   imageVersions: [],
   projectName: undefined,
-  errors: undefined,
+  error: undefined,
 };
 
 const requestReducer = (
-  state: GenerateState = initState,
+  state: RequestState = initState,
   action: RequestActionTypes,
-): GenerateState => {
+): RequestState => {
   const getImageVersionFromState = (
     imageVersionID: number,
   ): ImageVersion | undefined => {
@@ -30,13 +44,13 @@ const requestReducer = (
   };
 
   switch (action.type) {
-    case 'CHANGE_PROJECT_NAME': {
+    case CHANGE_PROJECT_NAME: {
       return {
         ...state,
         projectName: action.projectName,
       };
     }
-    case 'UPDATE_IMAGE_NAME': {
+    case UPDATE_IMAGE_NAME: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -54,7 +68,7 @@ const requestReducer = (
       }
       return state;
     }
-    case 'UPDATE_IMAGE_VERSION': {
+    case UPDATE_IMAGE_VERSION: {
       const { newImageVersion } = action;
       delete newImageVersion.extensions;
       if (action.previousImageVersionID !== undefined) {
@@ -68,7 +82,7 @@ const requestReducer = (
         imageVersions: [...state.imageVersions, newImageVersion],
       };
     }
-    case 'REMOVE_IMAGE_VERSION': {
+    case REMOVE_IMAGE_VERSION: {
       if (action.imageVersion === undefined) {
         // remove image dependency from other images
         const filteredImageVersions = state.imageVersions.map(
@@ -101,7 +115,7 @@ const requestReducer = (
         imageVersions: otherImageVersions,
       };
     }
-    case 'CHANGE_EXTENSIONS': {
+    case CHANGE_EXTENSIONS: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -111,7 +125,7 @@ const requestReducer = (
       if (selectedImageVersion !== undefined) {
         // merge extensions and remove duplicates
         const updatedExtensions = (selectedImageVersion.extensions !== undefined
-          ? [...selectedImageVersion.extensions!, ...action.extensions]
+          ? [...selectedImageVersion.extensions, ...action.extensions]
           : [...action.extensions]
         ).filter(
           (a: Extension, index: number, self: Extension[]) =>
@@ -132,7 +146,7 @@ const requestReducer = (
       }
       return state;
     }
-    case 'CHANGE_ENVIRONMENTS': {
+    case CHANGE_ENVIRONMENTS: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -150,7 +164,7 @@ const requestReducer = (
       }
       return state;
     }
-    case 'CHANGE_PORTS': {
+    case CHANGE_PORTS: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -167,7 +181,7 @@ const requestReducer = (
         };
       return state;
     }
-    case 'CHANGE_VOLUMES': {
+    case CHANGE_VOLUMES: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -185,7 +199,7 @@ const requestReducer = (
       }
       return state;
     }
-    case 'CHANGE_RESTART_TYPE': {
+    case CHANGE_RESTART_TYPE: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersionID,
       );
@@ -203,7 +217,7 @@ const requestReducer = (
       }
       return state;
     }
-    case 'CHANGE_DEPENDENCIES': {
+    case CHANGE_DEPENDENCIES: {
       const selectedImageVersion = getImageVersionFromState(
         action.imageVersion.id,
       );
@@ -224,16 +238,16 @@ const requestReducer = (
       }
       return state;
     }
-    case 'CHANGE_DOCKER_VERSION': {
+    case CHANGE_DOCKER_VERSION: {
       return {
         ...state,
         dockerVersionID: action.versionID,
       };
     }
-    case 'GENERATE_ERROR': {
+    case GENERATE_ERROR: {
       return {
         ...state,
-        errors: action.error,
+        error: action.error,
       };
     }
     default:

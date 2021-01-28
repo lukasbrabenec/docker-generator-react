@@ -25,7 +25,7 @@ const useStyles = makeStyles(() =>
   }),
 );
 
-function App() {
+function App(): JSX.Element {
   const [darkState, setDarkState] = useState(
     localStorage.getItem('darkState') === 'true',
   );

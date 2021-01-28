@@ -1,40 +1,50 @@
-import axios from 'axios';
-import { ThunkAction } from 'redux-thunk';
-import { Action } from 'redux';
-import { Image } from '../types/image/imageTypes';
+import { Image, ImagesState } from '../types/image/imageTypes';
+import { AppThunkAction, AppThunkDispatch } from '../types/root/rootState';
+import {
+  INIT_IMAGE_VERSIONS_ERROR,
+  INIT_IMAGE_VERSIONS_SUCCESS,
+  INIT_IMAGES_ERROR,
+  INIT_RESTART_TYPES_ERROR,
+  INIT_RESTART_TYPES_SUCCESS,
+} from '../types/image/imageActionTypes';
 
-export const initImages = (): ThunkAction<void, {}, {}, Action<string>> => {
-  return (dispatch) => {
-    axios
-      .get('http://localhost:8080/api/v1/images')
-      .then((res) => {
-        dispatch({ type: 'INIT_IMAGES_SUCCESS', images: res.data.data });
+export const initImages = (): AppThunkAction => {
+  return (dispatch: AppThunkDispatch<ImagesState>) => {
+    fetch('http://localhost:8080/api/v1/images')
+      .then((res: Response) => {
+        if (!res.ok) {
+          throw new Error('Loading images failed!');
+        }
+        return res.json();
       })
-      .catch(() => {
+      .then((data) => {
+        dispatch({ type: 'INIT_IMAGES_SUCCESS', images: data.data });
+      })
+      .catch((err) => {
         dispatch({
-          type: 'INIT_IMAGES_ERROR',
-          imagesError: 'Loading images failed!',
+          type: INIT_IMAGES_ERROR,
+          imagesError: err.message,
         });
       });
   };
 };
 
-export const initImageDetail = (
-  image: Image,
-): ThunkAction<void, {}, {}, Action<string>> => {
-  return (dispatch) => {
-    axios
-      .get(`http://localhost:8080/api/v1/images/${image.id}`)
-      .then((res) => {
+export const initImageDetail = (image: Image): AppThunkAction => {
+  return (dispatch: AppThunkDispatch<ImagesState>) => {
+    fetch(`http://localhost:8080/api/v1/images/${image.id}`)
+      .then((res: Response) => {
+        return res.json();
+      })
+      .then((data) => {
         dispatch({
-          type: 'INIT_IMAGE_VERSIONS_SUCCESS',
+          type: INIT_IMAGE_VERSIONS_SUCCESS,
           image,
-          imageVersions: res.data.data[0].imageVersions,
+          imageVersions: data.data[0].imageVersions,
         });
       })
       .catch(() => {
         dispatch({
-          type: 'INIT_IMAGE_VERSIONS_ERROR',
+          type: INIT_IMAGE_VERSIONS_ERROR,
           imageID: image.id,
           error: `Loading ${image.name} detail failed!`,
         });
@@ -42,24 +52,21 @@ export const initImageDetail = (
   };
 };
 
-export const initRestartTypes = (): ThunkAction<
-  void,
-  {},
-  {},
-  Action<string>
-> => {
-  return (dispatch) => {
-    axios
-      .get('http://localhost:8080/api/v1/restart-types')
-      .then((res) => {
+export const initRestartTypes = (): AppThunkAction => {
+  return (dispatch: AppThunkDispatch<ImagesState>) => {
+    fetch('http://localhost:8080/api/v1/restart-types')
+      .then((res: Response) => {
+        return res.json();
+      })
+      .then((data) => {
         dispatch({
-          type: 'INIT_RESTART_TYPES_SUCCESS',
-          restartTypes: res.data.data,
+          type: INIT_RESTART_TYPES_SUCCESS,
+          restartTypes: data.data,
         });
       })
       .catch(() => {
         dispatch({
-          type: 'INIT_RESTART_TYPES_ERROR',
+          type: INIT_RESTART_TYPES_ERROR,
           restartTypesError: 'Loading images failed!',
         });
       });

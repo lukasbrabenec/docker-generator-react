@@ -10,7 +10,7 @@ interface InitVersionsSuccessAction {
 
 interface InitVersionsErrorAction {
   type: typeof INIT_VERSIONS_ERROR;
-  versionsError: any;
+  versionsError: string;
 }
 
 export type VersionActionTypes =

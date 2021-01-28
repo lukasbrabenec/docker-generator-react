@@ -5,7 +5,6 @@ export interface Version {
 }
 
 export interface VersionState {
-  isLoaded: boolean;
   versions: Version[];
-  versionsError: any;
+  versionsError: undefined | string;
 }

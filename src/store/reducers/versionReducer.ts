@@ -1,24 +1,26 @@
 import { VersionState } from '../types/version/versionTypes';
-import { VersionActionTypes } from '../types/version/versionActionTypes';
+import {
+  INIT_VERSIONS_ERROR,
+  INIT_VERSIONS_SUCCESS,
+  VersionActionTypes,
+} from '../types/version/versionActionTypes';
 
 const initState: VersionState = {
-  isLoaded: false,
   versions: [],
-  versionsError: null,
+  versionsError: undefined,
 };
 
 const versionReducer = (
-  state = initState,
+  state: VersionState = initState,
   action: VersionActionTypes,
 ): VersionState => {
   switch (action.type) {
-    case 'INIT_VERSIONS_SUCCESS':
+    case INIT_VERSIONS_SUCCESS:
       return {
-        isLoaded: true,
-        versionsError: null,
+        versionsError: undefined,
         versions: action.versions,
       };
-    case 'INIT_VERSIONS_ERROR':
+    case INIT_VERSIONS_ERROR:
       return {
         ...state,
         versionsError: action.versionsError,

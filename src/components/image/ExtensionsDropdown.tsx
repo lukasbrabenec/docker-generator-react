@@ -20,7 +20,7 @@ const ExtensionsDropdown = ({
   handleExtensionChange,
   id,
   name,
-}: IExtensionsDropdownProps) => {
+}: IExtensionsDropdownProps): JSX.Element => {
   const dropDownOptions = extensions.length
     ? extensions.map((extension: Extension) => {
         return {

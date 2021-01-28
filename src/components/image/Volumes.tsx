@@ -1,15 +1,17 @@
 import React from 'react';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import FormControl from '@material-ui/core/FormControl';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Divider } from '@material-ui/core';
+import { Divider, IconButton, Tooltip } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import { Delete } from '@material-ui/icons';
 import { Volume } from '../../store/types/image/imageTypes';
 
 interface IVolumesProps {
-  volumes: Volume[];
+  volumes: Volume[] | undefined;
   handleVolumeChange: (volumes: Volume[]) => void;
+  handleAddVolume: () => void;
+  handleRemoveVolume: (volumeID: number) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,51 +31,60 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const Volumes = ({ volumes, handleVolumeChange }: IVolumesProps) => {
+const Volumes = ({
+  volumes,
+  handleVolumeChange,
+  handleAddVolume,
+  handleRemoveVolume,
+}: IVolumesProps): JSX.Element => {
   const handleVolumesStateChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     volumeId: number,
     type: string,
   ) => {
-    const changedValue = type === 'active' ? e.target.checked : e.target.value;
-    const changedVolume: Volume = {
-      ...volumes.find((volume: Volume) => volume.id === volumeId)!,
-      [type]: changedValue,
-    };
-    const otherVolumes: Volume[] = volumes.filter(
-      (volume: Volume) => volume.id !== volumeId,
-    );
-    const updatedVolumes = (otherVolumes.length
-      ? [...otherVolumes, changedVolume]
-      : [changedVolume]
-    ).sort((a: Volume, b: Volume) => a.id - b.id);
-    handleVolumeChange(updatedVolumes);
+    if (volumes !== undefined) {
+      let changedVolume = volumes.find(
+        (volume: Volume) => volume.id === volumeId,
+      );
+      if (changedVolume !== undefined) {
+        changedVolume = {
+          ...changedVolume,
+          [type]: e.target.value,
+        };
+        const otherVolumes: Volume[] = volumes.filter(
+          (volume: Volume) => volume.id !== volumeId,
+        );
+        const updatedVolumes = (otherVolumes.length
+          ? [...otherVolumes, changedVolume]
+          : [changedVolume]
+        ).sort((a: Volume, b: Volume) => a.id - b.id);
+        handleVolumeChange(updatedVolumes);
+      }
+    }
   };
 
   const classes = useStyles();
   return (
     <>
       {volumes && volumes.length
-        ? volumes.map((volume: Volume, i: number) => {
+        ? volumes.map((volume: Volume) => {
             return (
-              <React.Fragment key={`${volume.id}-volume`}>
+              <React.Fragment key={volume.id}>
                 <FormControl className={classes.row}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleVolumesStateChange(e, volume.id, 'active')
-                        }
-                        checked={volume.active}
-                      />
-                    }
-                    label="Active"
-                  />
                   <TextField
                     label="Container path"
                     value={volume.containerPath}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleVolumesStateChange(e, volume.id, 'containerPath')
+                    }
                     id={`${volume.id}-containerPath`}
-                    disabled
+                    error={volume.containerPath === ''}
+                    helperText={
+                      volume.containerPath === ''
+                        ? 'Path cannot be empty'
+                        : null
+                    }
+                    required={volume.containerPath === ''}
                   />
                   <TextField
                     label="Host path"
@@ -82,14 +93,30 @@ const Volumes = ({ volumes, handleVolumeChange }: IVolumesProps) => {
                       handleVolumesStateChange(e, volume.id, 'hostPath')
                     }
                     id={`${volume.id}-hostPath`}
-                    disabled={!volume.active}
+                    error={volume.hostPath === ''}
+                    helperText={
+                      volume.hostPath === '' ? 'Path cannot be empty' : null
+                    }
+                    required={volume.hostPath === ''}
                   />
+                  <Tooltip title="Remove Volume">
+                    <IconButton onClick={() => handleRemoveVolume(volume.id)}>
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
                 </FormControl>
-                {i !== volumes.length - 1 ? <Divider light /> : null}
+                <Divider light />
               </React.Fragment>
             );
           })
         : null}
+      <Button
+        variant="outlined"
+        style={{ width: '30%', alignSelf: 'center' }}
+        onClick={handleAddVolume}
+      >
+        Add Volume
+      </Button>
     </>
   );
 };

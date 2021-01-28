@@ -15,7 +15,7 @@ const DependenciesDropDown = ({
   currentImage,
   selectedImages,
   handleDependenciesChange,
-}: IExtensionsDropdownProps) => {
+}: IExtensionsDropdownProps): JSX.Element => {
   // filter self and other images that already have dependency on this image
   const filteredImages = selectedImages.filter(
     (image: Image) =>
@@ -30,7 +30,7 @@ const DependenciesDropDown = ({
 
   return (
     <Autocomplete
-      style={{ width: 500 }}
+      style={{ minWidth: '60%' }}
       multiple
       disabled={!filteredImages.length}
       size="small"

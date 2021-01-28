@@ -15,7 +15,7 @@ const ImageVersionSelect = ({
   imageVersions,
   selectedVersion,
   handleVersionChange,
-}: IImageVersionSelectProps) => {
+}: IImageVersionSelectProps): JSX.Element => {
   const versionItems = imageVersions.length
     ? imageVersions.map((imageVersion: ImageVersion) => {
         return (

@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useState } from 'react';
 import Paper from '@material-ui/core/Paper';
-import Fade from '@material-ui/core/Fade';
 import {
   CircularProgress,
   IconButton,
@@ -101,8 +100,10 @@ const ImageWrapper = ({
   changeVolumes,
   changeRestartType,
   changeDependencies,
-}: IImageWrapperProps) => {
-  const [selectedVersion, setSelectedVersion] = useState<ImageVersion>();
+}: IImageWrapperProps): JSX.Element => {
+  const [selectedVersion, setSelectedVersion] = useState<
+    ImageVersion | undefined
+  >();
   const [environments, setEnvironments] = useState<Environment[]>([]);
 
   const dispatch = useDispatch();
@@ -118,19 +119,19 @@ const ImageWrapper = ({
       10,
     );
     const oldSelectedVersionId =
-      typeof selectedVersion === 'object' ? selectedVersion.id : undefined;
-    const newSelectedVersion = image.imageVersions!.find(
+      selectedVersion !== undefined ? selectedVersion.id : undefined;
+    const newSelectedVersion = image.imageVersions?.find(
       (imageVersion: ImageVersion) => imageVersion.id === selectedVersionId,
     );
-    if (typeof newSelectedVersion === 'object') {
+    if (newSelectedVersion !== undefined && restartTypes !== undefined) {
       setSelectedVersion({
         ...newSelectedVersion,
-        restartType: restartTypes![0],
+        restartType: restartTypes[0],
       });
       updateImageVersion(
         {
           ...newSelectedVersion,
-          restartType: restartTypes![0],
+          restartType: restartTypes[0],
         },
         oldSelectedVersionId,
       );
@@ -141,7 +142,7 @@ const ImageWrapper = ({
     _e: React.ChangeEvent<{}>,
     extensions: Extension[],
   ) => {
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       changeExtensions(selectedVersion.id, extensions);
     }
   };
@@ -156,34 +157,34 @@ const ImageWrapper = ({
       { id: parseInt(e.target.id, 10), value: e.target.value },
     ];
     setEnvironments(newEnvironments);
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       changeEnvironments(selectedVersion.id, newEnvironments);
     }
   };
 
   const handlePortChange = (ports: Port[]) => {
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       changePorts(selectedVersion.id, ports);
       setSelectedVersion({ ...selectedVersion, ports });
     }
   };
 
   const handleVolumeChange = (volumes: Volume[]) => {
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       changeVolumes(selectedVersion.id, volumes);
       setSelectedVersion({ ...selectedVersion, volumes });
     }
   };
 
   const handleRestartTypeChange = (e: React.ChangeEvent<{}>) => {
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       const target = e.target as HTMLSelectElement;
-      if (typeof restartTypes !== 'undefined') {
+      if (restartTypes !== undefined) {
         const selectedRestartType = restartTypes.find(
           (restartType: RestartType) =>
             restartType.id === parseInt(target.value, 10),
         );
-        if (typeof selectedRestartType === 'object') {
+        if (selectedRestartType !== undefined) {
           setSelectedVersion({
             ...selectedVersion,
             restartType: selectedRestartType,
@@ -198,8 +199,71 @@ const ImageWrapper = ({
     _e: React.ChangeEvent<{}>,
     images: Image[],
   ) => {
-    if (typeof selectedVersion === 'object') {
+    if (selectedVersion !== undefined) {
       changeDependencies(selectedVersion, image, images);
+    }
+  };
+
+  const handleAddPort = () => {
+    if (selectedVersion !== undefined) {
+      const maxPortID =
+        selectedVersion.ports !== undefined && selectedVersion.ports.length
+          ? Math.max(...selectedVersion.ports.map((port: Port) => port.id))
+          : 1;
+      const newPort = {
+        id: maxPortID + 1,
+        inward: '',
+        outward: '',
+        exposedToHost: false,
+        exposedToContainers: false,
+      };
+      handlePortChange(
+        selectedVersion.ports !== undefined
+          ? [...selectedVersion.ports, newPort]
+          : [newPort],
+      );
+    }
+  };
+
+  const handleAddVolume = () => {
+    if (selectedVersion !== undefined) {
+      const maxVolumeID =
+        selectedVersion.volumes !== undefined && selectedVersion.volumes.length
+          ? Math.max(
+              ...selectedVersion.volumes.map((volume: Volume) => volume.id),
+            )
+          : 1;
+      const newVolume = {
+        id: maxVolumeID + 1,
+        containerPath: '',
+        hostPath: '',
+      };
+      handleVolumeChange(
+        selectedVersion.volumes !== undefined
+          ? [...selectedVersion.volumes, newVolume]
+          : [newVolume],
+      );
+    }
+  };
+
+  const handleRemovePort = (portID: number) => {
+    if (selectedVersion !== undefined && selectedVersion.ports !== undefined) {
+      handlePortChange([
+        ...selectedVersion.ports.filter((port: Port) => port.id !== portID),
+      ]);
+    }
+  };
+
+  const handleRemoveVolume = (volumeID: number) => {
+    if (
+      selectedVersion !== undefined &&
+      selectedVersion.volumes !== undefined
+    ) {
+      handleVolumeChange([
+        ...selectedVersion.volumes.filter(
+          (volume: Volume) => volume.id !== volumeID,
+        ),
+      ]);
     }
   };
 
@@ -241,28 +305,20 @@ const ImageWrapper = ({
                 handleVersionChange={handleVersionChange}
               />
             </Paper>
-            {typeof selectedVersion === 'object' ? (
-              <Paper variant="outlined" className={classes.row}>
-                <TextField
-                  label="Image name"
-                  key="image-name"
-                  onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                    updateImageName(selectedVersion.id, e.target.value)
-                  }
-                  style={{ width: '60%' }}
-                />
-              </Paper>
-            ) : null}
-            <Fade
-              in={
-                !!(typeof selectedVersion === 'object' && restartTypes?.length)
-              }
-              exit={false}
-              unmountOnExit
-            >
-              <Paper variant="outlined" className={classes.row}>
-                {typeof selectedVersion === 'object' && restartTypes?.length ? (
-                  <>
+            {selectedVersion !== undefined ? (
+              <>
+                <Paper variant="outlined" className={classes.row}>
+                  <TextField
+                    label="Image name"
+                    key="image-name"
+                    onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                      updateImageName(selectedVersion.id, e.target.value)
+                    }
+                    style={{ width: '60%' }}
+                  />
+                </Paper>
+                {restartTypes?.length ? (
+                  <Paper variant="outlined" className={classes.row}>
                     <FormControl
                       size="small"
                       style={{ minWidth: '60%' }}
@@ -294,113 +350,74 @@ const ImageWrapper = ({
                         })}
                       </Select>
                     </FormControl>
-                  </>
+                  </Paper>
                 ) : null}
-              </Paper>
-            </Fade>
-
-            <Fade
-              in={
-                typeof selectedVersion === 'object' &&
-                selectedImages?.length > 1
-              }
-              exit={false}
-              unmountOnExit
-            >
-              <Paper variant="outlined" className={classes.row}>
-                {typeof selectedVersion === 'object' &&
-                selectedImages?.length > 1 ? (
-                  <DependenciesDropDown
-                    currentImage={image}
-                    selectedImages={selectedImages}
-                    handleDependenciesChange={handleDependenciesChange}
-                  />
-                ) : null}
-              </Paper>
-            </Fade>
-            <Fade
-              in={!!selectedVersion?.environments?.length}
-              exit={false}
-              unmountOnExit
-            >
-              <Paper variant="outlined" className={classes.column}>
-                {typeof selectedVersion === 'object' &&
-                selectedVersion.environments?.length ? (
-                  <>
-                    <Typography variant="h5" component="h3">
-                      Environments
-                    </Typography>
-                    <Environments
-                      environments={selectedVersion.environments}
-                      handleEnvironmentChange={handleEnvironmentChange}
+                {selectedImages?.length > 1 ? (
+                  <Paper variant="outlined" className={classes.row}>
+                    <DependenciesDropDown
+                      currentImage={image}
+                      selectedImages={selectedImages}
+                      handleDependenciesChange={handleDependenciesChange}
                     />
-                  </>
+                  </Paper>
                 ) : null}
-              </Paper>
-            </Fade>
-            <Fade
-              in={!!selectedVersion?.extensions?.length}
-              exit={false}
-              unmountOnExit
-            >
-              {typeof selectedVersion === 'object' &&
-              selectedVersion.extensions?.length ? (
                 <Paper variant="outlined" className={classes.column}>
-                  <Typography variant="h5" component="h3">
-                    Extensions
-                  </Typography>
-                  <div className={classes.row}>
-                    <ExtensionsDropdown
-                      id="extension-system"
-                      name="System Extensions"
-                      extensions={selectedVersion.extensions.filter(
-                        (extension) => !extension.special,
-                      )}
-                      handleExtensionChange={handleExtensionChange}
-                    />
-                    <ExtensionsDropdown
-                      id="extension-special"
-                      name={`${
-                        image.name.charAt(0).toUpperCase() + image.name.slice(1)
-                      } Extensions`}
-                      extensions={selectedVersion.extensions.filter(
-                        (extension) => extension.special,
-                      )}
-                      handleExtensionChange={handleExtensionChange}
-                    />
-                  </div>
+                  {selectedVersion.environments?.length ? (
+                    <>
+                      <Typography variant="h5" component="h3">
+                        Environments
+                      </Typography>
+                      <Environments
+                        environments={selectedVersion.environments}
+                        handleEnvironmentChange={handleEnvironmentChange}
+                      />
+                    </>
+                  ) : null}
                 </Paper>
-              ) : (
-                <></>
-              )}
-            </Fade>
-            <Fade
-              in={!!selectedVersion?.ports?.length}
-              exit={false}
-              unmountOnExit
-            >
-              <Paper variant="outlined" className={classes.column}>
-                {selectedVersion?.ports?.length ? (
-                  <div className={classes.column}>
+                {selectedVersion.extensions?.length ? (
+                  <Paper variant="outlined" className={classes.column}>
+                    <Typography variant="h5" component="h3">
+                      Extensions
+                    </Typography>
+                    <div className={classes.row}>
+                      <ExtensionsDropdown
+                        id="extension-system"
+                        name="System Extensions"
+                        extensions={selectedVersion.extensions.filter(
+                          (extension) => !extension.special,
+                        )}
+                        handleExtensionChange={handleExtensionChange}
+                      />
+                      <ExtensionsDropdown
+                        id="extension-special"
+                        name={`${
+                          image.name.charAt(0).toUpperCase() +
+                          image.name.slice(1)
+                        } Extensions`}
+                        extensions={selectedVersion.extensions.filter(
+                          (extension) => extension.special,
+                        )}
+                        handleExtensionChange={handleExtensionChange}
+                      />
+                    </div>
+                  </Paper>
+                ) : (
+                  <></>
+                )}
+                <Paper variant="outlined" className={classes.column}>
+                  <>
                     <Typography variant="h5" component="h3">
                       Ports
                     </Typography>
                     <Ports
                       ports={selectedVersion.ports}
                       handlePortChange={handlePortChange}
+                      handleAddPort={handleAddPort}
+                      handleRemovePort={handleRemovePort}
                     />
-                  </div>
-                ) : null}
-              </Paper>
-            </Fade>
-
-            <Fade
-              in={!!selectedVersion?.volumes?.length}
-              exit={false}
-              unmountOnExit
-            >
-              <Paper variant="outlined" className={classes.column}>
-                {selectedVersion?.volumes?.length ? (
+                  </>
+                </Paper>
+                <Paper variant="outlined" className={classes.column}>
                   <>
                     <Typography variant="h5" component="h3">
                       Volumes
@@ -408,11 +425,15 @@ const ImageWrapper = ({
                     <Volumes
                       volumes={selectedVersion.volumes}
                       handleVolumeChange={handleVolumeChange}
+                      handleAddVolume={handleAddVolume}
+                      handleRemoveVolume={handleRemoveVolume}
                     />
                   </>
-                ) : null}
-              </Paper>
-            </Fade>
+                </Paper>
+              </>
+            ) : (
+              <></>
+            )}
           </>
         ) : (
           <>
