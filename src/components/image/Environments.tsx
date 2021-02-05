@@ -11,19 +11,17 @@ const Environments = ({
   environments,
   handleEnvironmentChange,
 }: IEnvironmentsProps): JSX.Element => {
-  const environmentList = environments.map((environment: Environment) => {
-    return (
-      <TextField
-        required={environment.required && !environment.hidden}
-        disabled={environment.hidden}
-        label={environment.code}
-        key={environment.id}
-        onChange={handleEnvironmentChange}
-        id={`${environment.id}`}
-        style={{ minWidth: '80%' }}
-      />
-    );
-  });
+  const environmentList = environments.map((environment: Environment) => (
+    <TextField
+      required={environment.required && !environment.hidden}
+      disabled={environment.hidden}
+      label={environment.code}
+      key={environment.id}
+      onChange={handleEnvironmentChange}
+      id={`${environment.id}`}
+      style={{ minWidth: '80%' }}
+    />
+  ));
 
   return <div>{environmentList}</div>;
 };

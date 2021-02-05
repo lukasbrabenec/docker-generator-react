@@ -17,13 +17,11 @@ const ImageVersionSelect = ({
   handleVersionChange,
 }: IImageVersionSelectProps): JSX.Element => {
   const versionItems = imageVersions.length
-    ? imageVersions.map((imageVersion: ImageVersion) => {
-        return (
-          <MenuItem value={imageVersion.id} key={imageVersion.id}>
-            {imageVersion.version}
-          </MenuItem>
-        );
-      })
+    ? imageVersions.map((imageVersion: ImageVersion) => (
+        <MenuItem value={imageVersion.id} key={imageVersion.id}>
+          {imageVersion.version}
+        </MenuItem>
+      ))
     : null;
 
   return versionItems ? (

@@ -27,21 +27,12 @@ const requestReducer = (
   state: RequestState = initState,
   action: RequestActionTypes,
 ): RequestState => {
-  const getImageVersionFromState = (
-    imageVersionID: number,
-  ): ImageVersion | undefined => {
-    return state.imageVersions.find(
-      (imageVersion: ImageVersion): boolean =>
-        imageVersion.id === imageVersionID,
+  const getImageVersionFromState = (imageVersionID: number): ImageVersion | undefined =>
+    state.imageVersions.find(
+      (imageVersion: ImageVersion): boolean => imageVersion.id === imageVersionID,
     );
-  };
-  const getImageVersionsWithoutSelected = (
-    imageVersionID: number,
-  ): ImageVersion[] => {
-    return state.imageVersions.filter(
-      (imageVersion: ImageVersion) => imageVersion.id !== imageVersionID,
-    );
-  };
+  const getImageVersionsWithoutSelected = (imageVersionID: number): ImageVersion[] =>
+    state.imageVersions.filter((imageVersion: ImageVersion) => imageVersion.id !== imageVersionID);
 
   switch (action.type) {
     case CHANGE_PROJECT_NAME: {
@@ -51,13 +42,9 @@ const requestReducer = (
       };
     }
     case UPDATE_IMAGE_NAME: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
       if (selectedImageVersion !== undefined) {
-        const otherImageVersions = getImageVersionsWithoutSelected(
-          action.imageVersionID,
-        );
+        const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
         return {
           ...state,
           imageVersions: [
@@ -85,43 +72,33 @@ const requestReducer = (
     case REMOVE_IMAGE_VERSION: {
       if (action.imageVersion === undefined) {
         // remove image dependency from other images
-        const filteredImageVersions = state.imageVersions.map(
-          (imageVersion: ImageVersion) => {
-            return {
-              ...imageVersion,
-              dependsOn: imageVersion.dependsOn?.filter(
-                (dependency: number) => dependency !== action.image.id,
-              ),
-            };
-          },
-        );
+        const filteredImageVersions = state.imageVersions.map((imageVersion: ImageVersion) => ({
+          ...imageVersion,
+          dependsOn: imageVersion.dependsOn?.filter(
+            (dependency: number) => dependency !== action.image.id,
+          ),
+        }));
         return {
           ...state,
           imageVersions: filteredImageVersions,
         };
       }
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersion.id,
-      ).map((otherImageVersion: ImageVersion) => {
-        return {
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersion.id).map(
+        (otherImageVersion: ImageVersion) => ({
           ...otherImageVersion,
           dependsOn: otherImageVersion.dependsOn?.filter(
             (dependency: number) => dependency !== action.image.id,
           ),
-        };
-      });
+        }),
+      );
       return {
         ...state,
         imageVersions: otherImageVersions,
       };
     }
     case CHANGE_EXTENSIONS: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
       if (selectedImageVersion !== undefined) {
         // merge extensions and remove duplicates
         const updatedExtensions = (selectedImageVersion.extensions !== undefined
@@ -129,9 +106,7 @@ const requestReducer = (
           : [...action.extensions]
         ).filter(
           (a: Extension, index: number, self: Extension[]) =>
-            self.findIndex((b: Extension) => {
-              return b.id === a.id;
-            }) === index,
+            self.findIndex((b: Extension) => b.id === a.id) === index,
         );
         return {
           ...state,
@@ -147,12 +122,8 @@ const requestReducer = (
       return state;
     }
     case CHANGE_ENVIRONMENTS: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
       if (selectedImageVersion !== undefined) {
         return {
           ...state,
@@ -165,29 +136,18 @@ const requestReducer = (
       return state;
     }
     case CHANGE_PORTS: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
       if (selectedImageVersion !== undefined)
         return {
           ...state,
-          imageVersions: [
-            ...otherImageVersions,
-            { ...selectedImageVersion, ports: action.ports },
-          ],
+          imageVersions: [...otherImageVersions, { ...selectedImageVersion, ports: action.ports }],
         };
       return state;
     }
     case CHANGE_VOLUMES: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
       if (selectedImageVersion !== undefined) {
         return {
           ...state,
@@ -200,12 +160,8 @@ const requestReducer = (
       return state;
     }
     case CHANGE_RESTART_TYPE: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersionID,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersionID,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersionID);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersionID);
       if (selectedImageVersion !== undefined) {
         return {
           ...state,
@@ -218,15 +174,9 @@ const requestReducer = (
       return state;
     }
     case CHANGE_DEPENDENCIES: {
-      const selectedImageVersion = getImageVersionFromState(
-        action.imageVersion.id,
-      );
-      const otherImageVersions = getImageVersionsWithoutSelected(
-        action.imageVersion.id,
-      );
-      const formattedDependencies = action.dependencies.map(
-        (image: Image) => image.id,
-      );
+      const selectedImageVersion = getImageVersionFromState(action.imageVersion.id);
+      const otherImageVersions = getImageVersionsWithoutSelected(action.imageVersion.id);
+      const formattedDependencies = action.dependencies.map((image: Image) => image.id);
       if (selectedImageVersion !== undefined) {
         return {
           ...state,

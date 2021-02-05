@@ -1,16 +1,11 @@
 import React from 'react';
-import Autocomplete, {
-  AutocompleteRenderInputParams,
-} from '@material-ui/lab/Autocomplete';
+import Autocomplete, { AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import { Extension } from '../../store/types/image/imageTypes';
 
 interface IExtensionsDropdownProps {
   extensions: Extension[];
-  handleExtensionChange: (
-    e: React.ChangeEvent<{}>,
-    extensions: Extension[],
-  ) => void;
+  handleExtensionChange: (e: React.ChangeEvent<{}>, extensions: Extension[]) => void;
   id: string;
   name: string;
 }
@@ -22,13 +17,11 @@ const ExtensionsDropdown = ({
   name,
 }: IExtensionsDropdownProps): JSX.Element => {
   const dropDownOptions = extensions.length
-    ? extensions.map((extension: Extension) => {
-        return {
-          id: extension.id,
-          name: extension.name,
-          special: extension.special,
-        };
-      })
+    ? extensions.map((extension: Extension) => ({
+        id: extension.id,
+        name: extension.name,
+        special: extension.special,
+      }))
     : [];
 
   return (
@@ -42,9 +35,7 @@ const ExtensionsDropdown = ({
       getOptionLabel={(option) => option.name}
       onChange={handleExtensionChange}
       filterSelectedOptions
-      getOptionSelected={(option, selectedOption) => {
-        return option.id === selectedOption.id;
-      }}
+      getOptionSelected={(option, selectedOption) => option.id === selectedOption.id}
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
           {...params}

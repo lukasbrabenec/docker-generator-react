@@ -34,41 +34,33 @@ const DockerEngineRelease = ({
   return (
     <div>
       <FormControl size="small" className={classes.formControl} required>
-        <InputLabel htmlFor="dockerEngineVersions">
-          Docker Engine Version
-        </InputLabel>
+        <InputLabel htmlFor="dockerEngineVersions">Docker Engine Version</InputLabel>
         <Select
           labelId="dockerEngineVersions"
           id="dockerEngineVersions"
           value={typeof selectedVersion === 'undefined' ? '' : selectedVersion}
           onChange={handleVersionChange}
         >
-          {versions.map((version: Version) => {
-            return (
-              <MenuItem value={version.id} key={version.id}>
-                {version.dockerEngineRelease}
-              </MenuItem>
-            );
-          })}
+          {versions.map((version: Version) => (
+            <MenuItem value={version.id} key={version.id}>
+              {version.dockerEngineRelease}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <FormControl size="small" className={classes.formControl} required>
-        <InputLabel htmlFor="dockerComposeVersion">
-          Docker Compose Version
-        </InputLabel>
+        <InputLabel htmlFor="dockerComposeVersion">Docker Compose Version</InputLabel>
         <Select
           labelId="dockerComposeVersion"
           id="dockerComposeVersion"
           value={typeof selectedVersion === 'undefined' ? '' : selectedVersion}
           onChange={handleVersionChange}
         >
-          {versions.map((version: Version) => {
-            return (
-              <MenuItem value={version.id} key={version.id}>
-                {version.composeVersion}
-              </MenuItem>
-            );
-          })}
+          {versions.map((version: Version) => (
+            <MenuItem value={version.id} key={version.id}>
+              {version.composeVersion}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
     </div>

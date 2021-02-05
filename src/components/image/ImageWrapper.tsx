@@ -1,11 +1,6 @@
 import React, { ChangeEvent, useState } from 'react';
 import Paper from '@material-ui/core/Paper';
-import {
-  CircularProgress,
-  IconButton,
-  Tooltip,
-  Typography,
-} from '@material-ui/core';
+import { CircularProgress, IconButton, Tooltip, Typography } from '@material-ui/core';
 import { Delete, Refresh } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import { useDispatch } from 'react-redux';
@@ -41,22 +36,12 @@ interface IImageWrapperProps {
     previousImageVersionID: number | undefined,
   ) => void;
   updateImageName: (imageVersionID: number, imageName: string) => void;
-  handleRemoveImage: (
-    image: Image,
-    imageVersion: ImageVersion | undefined,
-  ) => void;
+  handleRemoveImage: (image: Image, imageVersion: ImageVersion | undefined) => void;
   changeExtensions: (imageVersionID: number, extensions: Extension[]) => void;
-  changeEnvironments: (
-    imageVersionId: number,
-    environments: Environment[],
-  ) => void;
+  changeEnvironments: (imageVersionId: number, environments: Environment[]) => void;
   changePorts: (imageVersionID: number, ports: Port[]) => void;
   changeVolumes: (imageVersionID: number, volumes: Volume[]) => void;
-  changeDependencies: (
-    imageVersion: ImageVersion,
-    image: Image,
-    dependencies: Image[],
-  ) => void;
+  changeDependencies: (imageVersion: ImageVersion, image: Image, dependencies: Image[]) => void;
   changeRestartType: (imageVersionID: number, restartType: RestartType) => void;
 }
 
@@ -101,9 +86,7 @@ const ImageWrapper = ({
   changeRestartType,
   changeDependencies,
 }: IImageWrapperProps): JSX.Element => {
-  const [selectedVersion, setSelectedVersion] = useState<
-    ImageVersion | undefined
-  >(undefined);
+  const [selectedVersion, setSelectedVersion] = useState<ImageVersion | undefined>(undefined);
   const [environments, setEnvironments] = useState<Environment[]>([]);
 
   const dispatch = useDispatch();
@@ -114,12 +97,8 @@ const ImageWrapper = ({
   const { imageVersions } = image;
 
   const handleVersionChange = (e: React.ChangeEvent<{}>) => {
-    const selectedVersionId = parseInt(
-      (e.target as HTMLInputElement).value,
-      10,
-    );
-    const oldSelectedVersionId =
-      selectedVersion !== undefined ? selectedVersion.id : undefined;
+    const selectedVersionId = parseInt((e.target as HTMLInputElement).value, 10);
+    const oldSelectedVersionId = selectedVersion !== undefined ? selectedVersion.id : undefined;
     const newSelectedVersion = image.imageVersions?.find(
       (imageVersion: ImageVersion) => imageVersion.id === selectedVersionId,
     );
@@ -138,10 +117,7 @@ const ImageWrapper = ({
     }
   };
 
-  const handleExtensionChange = (
-    _e: React.ChangeEvent<{}>,
-    extensions: Extension[],
-  ) => {
+  const handleExtensionChange = (_e: React.ChangeEvent<{}>, extensions: Extension[]) => {
     if (selectedVersion !== undefined) {
       changeExtensions(selectedVersion.id, extensions);
     }
@@ -149,8 +125,7 @@ const ImageWrapper = ({
 
   const handleEnvironmentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const otherEnvironments = environments.filter(
-      (environment: Environment) =>
-        environment.id !== parseInt(e.target.id, 10),
+      (environment: Environment) => environment.id !== parseInt(e.target.id, 10),
     );
     const newEnvironments = [
       ...otherEnvironments,
@@ -181,8 +156,7 @@ const ImageWrapper = ({
       const target = e.target as HTMLSelectElement;
       if (restartTypes !== undefined) {
         const selectedRestartType = restartTypes.find(
-          (restartType: RestartType) =>
-            restartType.id === parseInt(target.value, 10),
+          (restartType: RestartType) => restartType.id === parseInt(target.value, 10),
         );
         if (selectedRestartType !== undefined) {
           setSelectedVersion({
@@ -195,10 +169,7 @@ const ImageWrapper = ({
     }
   };
 
-  const handleDependenciesChange = (
-    _e: React.ChangeEvent<{}>,
-    images: Image[],
-  ) => {
+  const handleDependenciesChange = (_e: React.ChangeEvent<{}>, images: Image[]) => {
     if (selectedVersion !== undefined) {
       changeDependencies(selectedVersion, image, images);
     }
@@ -218,9 +189,7 @@ const ImageWrapper = ({
         exposedToContainers: false,
       };
       handlePortChange(
-        selectedVersion.ports !== undefined
-          ? [...selectedVersion.ports, newPort]
-          : [newPort],
+        selectedVersion.ports !== undefined ? [...selectedVersion.ports, newPort] : [newPort],
       );
     }
   };
@@ -229,9 +198,7 @@ const ImageWrapper = ({
     if (selectedVersion !== undefined) {
       const maxVolumeID =
         selectedVersion.volumes !== undefined && selectedVersion.volumes.length
-          ? Math.max(
-              ...selectedVersion.volumes.map((volume: Volume) => volume.id),
-            )
+          ? Math.max(...selectedVersion.volumes.map((volume: Volume) => volume.id))
           : 1;
       const newVolume = {
         id: maxVolumeID + 1,
@@ -248,21 +215,14 @@ const ImageWrapper = ({
 
   const handleRemovePort = (portID: number) => {
     if (selectedVersion !== undefined && selectedVersion.ports !== undefined) {
-      handlePortChange([
-        ...selectedVersion.ports.filter((port: Port) => port.id !== portID),
-      ]);
+      handlePortChange([...selectedVersion.ports.filter((port: Port) => port.id !== portID)]);
     }
   };
 
   const handleRemoveVolume = (volumeID: number) => {
-    if (
-      selectedVersion !== undefined &&
-      selectedVersion.volumes !== undefined
-    ) {
+    if (selectedVersion !== undefined && selectedVersion.volumes !== undefined) {
       handleVolumeChange([
-        ...selectedVersion.volumes.filter(
-          (volume: Volume) => volume.id !== volumeID,
-        ),
+        ...selectedVersion.volumes.filter((volume: Volume) => volume.id !== volumeID),
       ]);
     }
   };
@@ -319,14 +279,8 @@ const ImageWrapper = ({
                 </Paper>
                 {restartTypes?.length ? (
                   <Paper variant="outlined" className={classes.row}>
-                    <FormControl
-                      size="small"
-                      style={{ minWidth: '60%' }}
-                      required
-                    >
-                      <InputLabel htmlFor="restartTypes">
-                        Restart Type
-                      </InputLabel>
+                    <FormControl size="small" style={{ minWidth: '60%' }} required>
+                      <InputLabel htmlFor="restartTypes">Restart Type</InputLabel>
                       <Select
                         labelId="restartTypes"
                         id="restartTypes"
@@ -338,16 +292,11 @@ const ImageWrapper = ({
                         onChange={handleRestartTypeChange}
                         required
                       >
-                        {restartTypes.map((restartType: RestartType) => {
-                          return (
-                            <MenuItem
-                              value={restartType.id}
-                              key={restartType.id}
-                            >
-                              {restartType.type}
-                            </MenuItem>
-                          );
-                        })}
+                        {restartTypes.map((restartType: RestartType) => (
+                          <MenuItem value={restartType.id} key={restartType.id}>
+                            {restartType.type}
+                          </MenuItem>
+                        ))}
                       </Select>
                     </FormControl>
                   </Paper>
@@ -391,8 +340,7 @@ const ImageWrapper = ({
                       <ExtensionsDropdown
                         id="extension-special"
                         name={`${
-                          image.name.charAt(0).toUpperCase() +
-                          image.name.slice(1)
+                          image.name.charAt(0).toUpperCase() + image.name.slice(1)
                         } Extensions`}
                         extensions={selectedVersion.extensions.filter(
                           (extension) => extension.special,

@@ -25,160 +25,135 @@ import {
   UPDATE_IMAGE_VERSION,
 } from '../types/request/requestActionTypes';
 
-export const changeProjectName = (projectName: string): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({ type: 'CHANGE_PROJECT_NAME', projectName });
-  };
+export const changeProjectName = (projectName: string): AppThunkAction => (
+  dispatch: AppThunkDispatch<RequestState>,
+) => {
+  dispatch({ type: 'CHANGE_PROJECT_NAME', projectName });
 };
 
-export const updateImageName = (
-  imageVersionID: number,
-  imageName: string,
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: UPDATE_IMAGE_NAME,
-      imageVersionID,
-      imageName,
-    });
-  };
+export const updateImageName = (imageVersionID: number, imageName: string): AppThunkAction => (
+  dispatch: AppThunkDispatch<RequestState>,
+) => {
+  dispatch({
+    type: UPDATE_IMAGE_NAME,
+    imageVersionID,
+    imageName,
+  });
 };
 
-export const changeDockerVersion = (versionID: number): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({ type: CHANGE_DOCKER_VERSION, versionID });
-  };
+export const changeDockerVersion = (versionID: number): AppThunkAction => (
+  dispatch: AppThunkDispatch<RequestState>,
+) => {
+  dispatch({ type: CHANGE_DOCKER_VERSION, versionID });
 };
 
 export const updateImageVersion = (
   newImageVersion: ImageVersion,
   previousImageVersionID: number | undefined,
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: UPDATE_IMAGE_VERSION,
-      newImageVersion,
-      previousImageVersionID,
-    });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({
+    type: UPDATE_IMAGE_VERSION,
+    newImageVersion,
+    previousImageVersionID,
+  });
 };
 
 export const removeImageVersionInRequest = (
   imageVersion: ImageVersion | undefined,
   image: Image,
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({ type: REMOVE_IMAGE_VERSION, imageVersion, image });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({ type: REMOVE_IMAGE_VERSION, imageVersion, image });
 };
 
 export const changeExtensions = (
   imageVersionID: number,
   extensions: Extension[],
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: CHANGE_EXTENSIONS,
-      imageVersionID,
-      extensions,
-    });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({
+    type: CHANGE_EXTENSIONS,
+    imageVersionID,
+    extensions,
+  });
 };
 
 export const changeEnvironments = (
   imageVersionID: number,
   environments: Environment[],
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: CHANGE_ENVIRONMENTS,
-      imageVersionID,
-      environments,
-    });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({
+    type: CHANGE_ENVIRONMENTS,
+    imageVersionID,
+    environments,
+  });
 };
 
-export const changePorts = (
-  imageVersionID: number,
-  ports: Port[],
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({ type: CHANGE_PORTS, imageVersionID, ports });
-  };
+export const changePorts = (imageVersionID: number, ports: Port[]): AppThunkAction => (
+  dispatch: AppThunkDispatch<RequestState>,
+) => {
+  dispatch({ type: CHANGE_PORTS, imageVersionID, ports });
 };
 
-export const changeVolumes = (
-  imageVersionID: number,
-  volumes: Volume[],
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: CHANGE_VOLUMES,
-      imageVersionID,
-      volumes,
-    });
-  };
+export const changeVolumes = (imageVersionID: number, volumes: Volume[]): AppThunkAction => (
+  dispatch: AppThunkDispatch<RequestState>,
+) => {
+  dispatch({
+    type: CHANGE_VOLUMES,
+    imageVersionID,
+    volumes,
+  });
 };
 
 export const changeRestartType = (
   imageVersionID: number,
   restartType: RestartType,
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: CHANGE_RESTART_TYPE,
-      imageVersionID,
-      restartType,
-    });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({
+    type: CHANGE_RESTART_TYPE,
+    imageVersionID,
+    restartType,
+  });
 };
 
 export const changeDependencies = (
   imageVersion: ImageVersion,
   dependencies: Image[],
-): AppThunkAction => {
-  return (dispatch: AppThunkDispatch<RequestState>) => {
-    dispatch({
-      type: CHANGE_DEPENDENCIES,
-      imageVersion,
-      dependencies,
-    });
-  };
+): AppThunkAction => (dispatch: AppThunkDispatch<RequestState>) => {
+  dispatch({
+    type: CHANGE_DEPENDENCIES,
+    imageVersion,
+    dependencies,
+  });
 };
 
-export const generate = (): ThunkAction<
-  void,
-  RootStateOrAny,
-  {},
-  Action<string>
-> => {
-  return (dispatch: AppThunkDispatch, getState) => {
-    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(getState().request),
+export const generate = (): ThunkAction<void, RootStateOrAny, {}, Action<string>> => (
+  dispatch: AppThunkDispatch,
+  getState,
+) => {
+  fetch(`${process.env.REACT_APP_API_HOST}/api/v1/generate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(getState().request),
+  })
+    .then((res: Response) => {
+      if (!res.ok) {
+        throw new Error('Generation failed!');
+      }
+      return res.blob();
     })
-      .then((res: Response) => {
-        if (!res.ok) {
-          throw new Error('Generation failed!');
-        }
-        return res.blob();
-      })
-      .then((data: Blob) => {
-        const url = window.URL.createObjectURL(new Blob([data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `${getState().request.projectName}.zip`);
-        document.body.appendChild(link);
-        link.click();
-      })
-      .catch(() => {
-        dispatch({
-          type: 'GENERATE_ERROR',
-          error: 'Generation failed!',
-        });
+    .then((data: Blob) => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${getState().request.projectName}.zip`);
+      document.body.appendChild(link);
+      link.click();
+    })
+    .catch(() => {
+      dispatch({
+        type: 'GENERATE_ERROR',
+        error: 'Generation failed!',
       });
-  };
+    });
 };

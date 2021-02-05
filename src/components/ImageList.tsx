@@ -1,13 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {
-  FormControl,
-  InputLabel,
-  ListSubheader,
-  MenuItem,
-  Paper,
-  Select,
-} from '@material-ui/core';
+import { FormControl, InputLabel, ListSubheader, MenuItem, Paper, Select } from '@material-ui/core';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
   changeEnvironments,
@@ -60,10 +53,8 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
   const [selectedImages, setSelectedImages] = useState<Image[]>([]);
   const dispatch = useDispatch();
   const handleUpdateImageVersion = useCallback(
-    (
-      newImageVersion: ImageVersion,
-      previousImageVersionID: number | undefined,
-    ) => dispatch(updateImageVersion(newImageVersion, previousImageVersionID)),
+    (newImageVersion: ImageVersion, previousImageVersionID: number | undefined) =>
+      dispatch(updateImageVersion(newImageVersion, previousImageVersionID)),
     [dispatch],
   );
   const handleUpdateImageName = useCallback(
@@ -82,13 +73,11 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
     [dispatch],
   );
   const handleChangePorts = useCallback(
-    (imageVersionID: number, ports: Port[]) =>
-      dispatch(changePorts(imageVersionID, ports)),
+    (imageVersionID: number, ports: Port[]) => dispatch(changePorts(imageVersionID, ports)),
     [dispatch],
   );
   const handleChangeVolumes = useCallback(
-    (imageVersionID: number, volumes: Volume[]) =>
-      dispatch(changeVolumes(imageVersionID, volumes)),
+    (imageVersionID: number, volumes: Volume[]) => dispatch(changeVolumes(imageVersionID, volumes)),
     [dispatch],
   );
   const handleChangeRestartType = useCallback(
@@ -104,9 +93,7 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
     dispatch(changeDependencies(imageVersion, dependencies));
     const newSelectedImages = selectedImages.map((selectedImage: Image) => {
       const dependentImage = dependencies
-        ? dependencies.find(
-            (dependency: Image) => selectedImage.id === dependency.id,
-          )
+        ? dependencies.find((dependency: Image) => selectedImage.id === dependency.id)
         : undefined;
       if (dependentImage !== undefined) {
         const selectedImageHaveCurrentDependency = selectedImage.dependencies
@@ -141,9 +128,7 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
 
   const handleSelectImage = (e: React.ChangeEvent<{}>) => {
     const selectedImageID = parseInt((e.target as HTMLInputElement).value, 10);
-    const newSelectedImage = images.find((image: Image) => {
-      return image.id === selectedImageID;
-    });
+    const newSelectedImage = images.find((image: Image) => image.id === selectedImageID);
     if (newSelectedImage) {
       if (newSelectedImage.imageVersions === undefined) {
         // init image versions only when it is not already stored in redux
@@ -156,15 +141,10 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
     }
   };
 
-  const handleRemoveImage = (
-    image: Image,
-    imageVersion: ImageVersion | undefined,
-  ) => {
+  const handleRemoveImage = (image: Image, imageVersion: ImageVersion | undefined) => {
     dispatch(removeImageVersionInRequest(imageVersion, image));
     setSelectedImages(
-      selectedImages?.filter(
-        (selectedImage: Image) => selectedImage.id !== image.id,
-      ),
+      selectedImages?.filter((selectedImage: Image) => selectedImage.id !== image.id),
     );
   };
 
@@ -173,9 +153,8 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
     // filter selected images
     .filter(
       (image: Image) =>
-        selectedImages?.filter(
-          (selectedImage: Image) => selectedImage.id === image.id,
-        ).length === 0,
+        selectedImages?.filter((selectedImage: Image) => selectedImage.id === image.id).length ===
+        0,
     )
     // sort by group ID and image name
     .sort((a: Image, b: Image) => {
@@ -188,20 +167,16 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
       return -1;
     })
     // apply image groups
-    .map((image: Image, i: number, array: Image[]) => {
-      return [
-        (array[i - 1] !== undefined &&
-          image.group.id !== array[i - 1].group.id) ||
-        i === 0 ? (
-          <ListSubheader className={classes.subheader} disableSticky>
-            {image.group.name}
-          </ListSubheader>
-        ) : null,
-        <MenuItem key={image.id} value={image.id}>
-          {image.name}
-        </MenuItem>,
-      ];
-    });
+    .map((image: Image, i: number, array: Image[]) => [
+      (array[i - 1] !== undefined && image.group.id !== array[i - 1].group.id) || i === 0 ? (
+        <ListSubheader className={classes.subheader} disableSticky>
+          {image.group.name}
+        </ListSubheader>
+      ) : null,
+      <MenuItem key={image.id} value={image.id}>
+        {image.name}
+      </MenuItem>,
+    ]);
 
   return (
     <>
@@ -212,15 +187,8 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
             alignSelf: 'center',
           }}
         >
-          <Paper
-            variant="outlined"
-            style={{ borderColor: 'rgba(0, 0, 0, 0.25)', padding: '10px' }}
-          >
-            <FormControl
-              size="small"
-              fullWidth
-              required={!selectedImages?.length}
-            >
+          <Paper variant="outlined" style={{ borderColor: 'rgba(0, 0, 0, 0.25)', padding: '10px' }}>
+            <FormControl size="small" fullWidth required={!selectedImages?.length}>
               <InputLabel htmlFor="images">
                 {availableImageItems.length ? 'Add Image' : 'No Images'}
               </InputLabel>
@@ -243,32 +211,28 @@ const ImageList = ({ images, restartTypes }: IImageListProps): JSX.Element => {
       <div
         className="images"
         style={
-          selectedImages?.length === 1
-            ? { flexDirection: 'column', alignItems: 'center' }
-            : {}
+          selectedImages?.length === 1 ? { flexDirection: 'column', alignItems: 'center' } : {}
         }
       >
         {selectedImages ? (
-          selectedImages.map((image: Image) => {
-            return (
-              <div className={classes.column} key={`${image.id}-image`}>
-                <ImageWrapper
-                  image={image}
-                  selectedImages={selectedImages}
-                  restartTypes={restartTypes}
-                  updateImageVersion={handleUpdateImageVersion}
-                  updateImageName={handleUpdateImageName}
-                  handleRemoveImage={handleRemoveImage}
-                  changeExtensions={handleChangeExtensions}
-                  changeEnvironments={handleChangeEnvironments}
-                  changePorts={handleChangePorts}
-                  changeVolumes={handleChangeVolumes}
-                  changeRestartType={handleChangeRestartType}
-                  changeDependencies={handleChangeDependencies}
-                />
-              </div>
-            );
-          })
+          selectedImages.map((image: Image) => (
+            <div className={classes.column} key={`${image.id}-image`}>
+              <ImageWrapper
+                image={image}
+                selectedImages={selectedImages}
+                restartTypes={restartTypes}
+                updateImageVersion={handleUpdateImageVersion}
+                updateImageName={handleUpdateImageName}
+                handleRemoveImage={handleRemoveImage}
+                changeExtensions={handleChangeExtensions}
+                changeEnvironments={handleChangeEnvironments}
+                changePorts={handleChangePorts}
+                changeVolumes={handleChangeVolumes}
+                changeRestartType={handleChangeRestartType}
+                changeDependencies={handleChangeDependencies}
+              />
+            </div>
+          ))
         ) : (
           <></>
         )}

@@ -1,7 +1,5 @@
 import React from 'react';
-import Autocomplete, {
-  AutocompleteRenderInputParams,
-} from '@material-ui/lab/Autocomplete';
+import Autocomplete, { AutocompleteRenderInputParams } from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import { Image } from '../../store/types/image/imageTypes';
 
@@ -22,9 +20,7 @@ const DependenciesDropDown = ({
       image.id !== currentImage.id &&
       !(
         currentImage.dependencies &&
-        currentImage.dependencies.find(
-          (dependentImage: Image) => dependentImage.id === image.id,
-        )
+        currentImage.dependencies.find((dependentImage: Image) => dependentImage.id === image.id)
       ),
   );
 
@@ -38,16 +34,12 @@ const DependenciesDropDown = ({
       getOptionLabel={(option) => option.name}
       onChange={handleDependenciesChange}
       filterSelectedOptions
-      getOptionSelected={(option, selectedOption) => {
-        return option.id === selectedOption.id;
-      }}
+      getOptionSelected={(option, selectedOption) => option.id === selectedOption.id}
       renderInput={(params: AutocompleteRenderInputParams) => (
         <TextField
           {...params}
           variant="standard"
-          label={
-            !filteredImages.length ? `No dependency available` : 'Depends on'
-          }
+          label={!filteredImages.length ? `No dependency available` : 'Depends on'}
         />
       )}
     />

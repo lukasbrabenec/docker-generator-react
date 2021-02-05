@@ -15,16 +15,11 @@ const initImageState: ImagesState = {
   error: undefined,
 };
 
-const imageReducer = (
-  state = initImageState,
-  action: ImageActionTypes,
-): ImagesState => {
-  const getImageFromState = (imageID: number): Image | undefined => {
-    return state.images.find((image: Image) => image.id === imageID);
-  };
-  const getImageFromStateWithoutSelected = (imageID: number): Image[] => {
-    return state.images.filter((image: Image) => image.id !== imageID);
-  };
+const imageReducer = (state = initImageState, action: ImageActionTypes): ImagesState => {
+  const getImageFromState = (imageID: number): Image | undefined =>
+    state.images.find((image: Image) => image.id === imageID);
+  const getImageFromStateWithoutSelected = (imageID: number): Image[] =>
+    state.images.filter((image: Image) => image.id !== imageID);
 
   switch (action.type) {
     case INIT_IMAGES_SUCCESS:
@@ -40,14 +35,10 @@ const imageReducer = (
     case INIT_IMAGE_VERSIONS_SUCCESS: {
       const otherImages = getImageFromStateWithoutSelected(action.image.id);
       const selectedImage = getImageFromState(action.image.id);
-      const imageVersions = action.imageVersions.map(
-        (imageVersion: ImageVersion) => {
-          return {
-            ...imageVersion,
-            imageName: action.image.name,
-          };
-        },
-      );
+      const imageVersions = action.imageVersions.map((imageVersion: ImageVersion) => ({
+        ...imageVersion,
+        imageName: action.image.name,
+      }));
       if (selectedImage !== undefined) {
         selectedImage.imageVersions = imageVersions;
         return {
