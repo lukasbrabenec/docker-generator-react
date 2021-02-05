@@ -13,6 +13,4 @@ interface InitVersionsErrorAction {
   versionsError: string;
 }
 
-export type VersionActionTypes =
-  | InitVersionsSuccessAction
-  | InitVersionsErrorAction;
+export type VersionActionTypes = InitVersionsSuccessAction | InitVersionsErrorAction;

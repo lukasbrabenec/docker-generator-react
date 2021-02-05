@@ -6,31 +6,21 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { GetApp } from '@material-ui/icons';
 import ImageList from './ImageList';
-import {
-  changeDockerVersion,
-  changeProjectName,
-  generate,
-} from '../store/actions/requestActions';
+import { changeDockerVersion, changeProjectName, generate } from '../store/actions/requestActions';
 import { initImages, initRestartTypes } from '../store/actions/imageActions';
 import { initVersions } from '../store/actions/versionActions';
 import DockerEngineVersion from './DockerEngineVersion';
 import { RootState } from '../store/types/root/rootState';
 
 const Form = (): JSX.Element => {
-  const [selectedVersion, setSelectedVersion] = useState<number | undefined>(
-    undefined,
-  );
+  const [selectedVersion, setSelectedVersion] = useState<number | undefined>(undefined);
   const [projectName, setProjectName] = useState<string>('');
 
   const imagesError = useSelector((state: RootState) => state.image.error);
   const images = useSelector((state: RootState) => state.image.images);
-  const versionsError = useSelector(
-    (state: RootState) => state.version.versionsError,
-  );
+  const versionsError = useSelector((state: RootState) => state.version.versionsError);
   const versions = useSelector((state: RootState) => state.version.versions);
-  const restartTypes = useSelector(
-    (state: RootState) => state.image.restartTypes,
-  );
+  const restartTypes = useSelector((state: RootState) => state.image.restartTypes);
 
   const dispatch = useDispatch();
 
@@ -64,9 +54,7 @@ const Form = (): JSX.Element => {
             className="general-option"
             label="Project Name"
             value={projectName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleProjectNameChange(e)
-            }
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleProjectNameChange(e)}
             style={{ minWidth: '350px', maxWidth: '500px' }}
             required
           />
@@ -88,9 +76,7 @@ const Form = (): JSX.Element => {
         </form>
       ) : (
         <>
-          {!imagesError && !versionsError ? (
-            <CircularProgress style={{ margin: 'auto' }} />
-          ) : null}
+          {!imagesError && !versionsError ? <CircularProgress style={{ margin: 'auto' }} /> : null}
         </>
       )}
     </Container>

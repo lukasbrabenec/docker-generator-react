@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  createMuiTheme,
-  CssBaseline,
-  Switch,
-  ThemeProvider,
-  Typography,
-} from '@material-ui/core';
+import { createMuiTheme, CssBaseline, Switch, ThemeProvider, Typography } from '@material-ui/core';
 import { NightsStay, WbSunny } from '@material-ui/icons';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
 import Form from './components/Form';
@@ -26,9 +20,7 @@ const useStyles = makeStyles(() =>
 );
 
 function App(): JSX.Element {
-  const [darkState, setDarkState] = useState(
-    localStorage.getItem('darkState') === 'true',
-  );
+  const [darkState, setDarkState] = useState(localStorage.getItem('darkState') === 'true');
 
   const theme = createMuiTheme({
     palette: {
