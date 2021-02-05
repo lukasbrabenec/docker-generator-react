@@ -4,13 +4,14 @@ import {
   INIT_IMAGE_VERSIONS_ERROR,
   INIT_IMAGE_VERSIONS_SUCCESS,
   INIT_IMAGES_ERROR,
+  INIT_IMAGES_SUCCESS,
   INIT_RESTART_TYPES_ERROR,
   INIT_RESTART_TYPES_SUCCESS,
 } from '../types/image/imageActionTypes';
 
 export const initImages = (): AppThunkAction => {
   return (dispatch: AppThunkDispatch<ImagesState>) => {
-    fetch('http://localhost:8080/api/v1/images')
+    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/images`)
       .then((res: Response) => {
         if (!res.ok) {
           throw new Error('Loading images failed!');
@@ -18,7 +19,7 @@ export const initImages = (): AppThunkAction => {
         return res.json();
       })
       .then((data) => {
-        dispatch({ type: 'INIT_IMAGES_SUCCESS', images: data.data });
+        dispatch({ type: INIT_IMAGES_SUCCESS, images: data.data });
       })
       .catch((err) => {
         dispatch({
@@ -31,7 +32,7 @@ export const initImages = (): AppThunkAction => {
 
 export const initImageDetail = (image: Image): AppThunkAction => {
   return (dispatch: AppThunkDispatch<ImagesState>) => {
-    fetch(`http://localhost:8080/api/v1/images/${image.id}`)
+    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/images/${image.id}`)
       .then((res: Response) => {
         return res.json();
       })
@@ -54,7 +55,7 @@ export const initImageDetail = (image: Image): AppThunkAction => {
 
 export const initRestartTypes = (): AppThunkAction => {
   return (dispatch: AppThunkDispatch<ImagesState>) => {
-    fetch('http://localhost:8080/api/v1/restart-types')
+    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/restart-types`)
       .then((res: Response) => {
         return res.json();
       })

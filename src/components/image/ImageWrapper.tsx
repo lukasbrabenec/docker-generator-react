@@ -103,7 +103,7 @@ const ImageWrapper = ({
 }: IImageWrapperProps): JSX.Element => {
   const [selectedVersion, setSelectedVersion] = useState<
     ImageVersion | undefined
-  >();
+  >(undefined);
   const [environments, setEnvironments] = useState<Environment[]>([]);
 
   const dispatch = useDispatch();

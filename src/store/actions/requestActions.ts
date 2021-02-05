@@ -153,12 +153,12 @@ export const generate = (): ThunkAction<
   Action<string>
 > => {
   return (dispatch: AppThunkDispatch, getState) => {
-    fetch('http://localhost:8080/api/v1/generate', {
+    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ generate: getState().request }),
+      body: JSON.stringify(getState().request),
     })
       .then((res: Response) => {
         if (!res.ok) {
@@ -174,8 +174,7 @@ export const generate = (): ThunkAction<
         document.body.appendChild(link);
         link.click();
       })
-      .catch((err) => {
-        console.log(err);
+      .catch(() => {
         dispatch({
           type: 'GENERATE_ERROR',
           error: 'Generation failed!',

@@ -7,7 +7,7 @@ import {
 
 export const initVersions = (): AppThunkAction => {
   return (dispatch: AppThunkDispatch<VersionState>) => {
-    fetch('http://localhost:8080/api/v1/versions')
+    fetch(`${process.env.REACT_APP_API_HOST}/api/v1/compose-versions`)
       .then((res: Response) => {
         if (!res.ok) {
           throw new Error('Loading compose versions failed!');
