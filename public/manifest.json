@@ -1,8 +1,21 @@
 {
   "short_name": "Docker Generator",
   "name": "Generate Docker Templates",
+  "description": "Web site made for generating Docker images based on your preferences",
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "size": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "size": "512x512"
+    }
+  ]
 }
