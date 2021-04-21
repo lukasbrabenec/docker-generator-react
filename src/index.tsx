@@ -4,9 +4,17 @@ import './index.css';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
+import * as Sentry from '@sentry/react';
+import { Integrations } from '@sentry/tracing';
 import App from './App';
 import * as serviceWorker from './serviceWorker.js';
 import rootReducer from './store/reducers/rootReducer';
+
+Sentry.init({
+    dsn: "https://d39ccccb39524c5588263dc10658af63@o576384.ingest.sentry.io/5729907",
+    integrations: [new Integrations.BrowserTracing()],
+    tracesSampleRate: 1.0,
+});
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
