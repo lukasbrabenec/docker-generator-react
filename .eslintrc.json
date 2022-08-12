@@ -4,7 +4,6 @@
         "es2021": true
     },
     "extends": [
-        "airbnb-react-typescript-prettier",
         "plugin:@typescript-eslint/eslint-recommended",
         "prettier",
         "prettier/react",
@@ -28,7 +27,8 @@
         "react",
         "@typescript-eslint/eslint-plugin",
         "react-hooks",
-        "prettier"
+        "prettier",
+        "import"
     ],
     "rules": {
         "react-hooks/rules-of-hooks": "error",
